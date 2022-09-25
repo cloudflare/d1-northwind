@@ -28,6 +28,7 @@ preview_id = "d3..."
 
 [env.production]
 [env.production.vars]
+USE_KV_PAGES = "true"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "d1-northwind"
