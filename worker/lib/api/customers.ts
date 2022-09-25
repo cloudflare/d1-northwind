@@ -16,7 +16,11 @@ const apiCustomers = () => {
                 [[itemsPerPage, (page - 1) * itemsPerPage]]
             );
             try {
+                console.log(stmts);
                 const response: D1Result<any>[] = await env.DB.batch(stmts as D1PreparedStatement[]);
+                console.log(response);
+                console.log("response[0]:", response[0]);
+                console.log("response[1]:", response[1]);
                 const first = response[0];
                 const total = count && first.results ? (first.results[0] as any).total : 0;
                 const customers: any = count ? response.slice(1)[0].results : response[0].results;

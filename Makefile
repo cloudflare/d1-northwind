@@ -22,13 +22,13 @@ local:
 	npx wrangler dev --local --persist --env local --assets dist --ip 0.0.0.0 & npx rollup -c rollup.app.config.js --watch
 
 dev:
-	npx wrangler kv:key put app.js --path ./dist/app.js --binding d1_northwind_assets --env dev
-	npx wrangler kv:key put app.css --path ./dist/app.css --binding d1_northwind_assets --env dev
+	npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env dev --preview
+	npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env dev --preview
 	npx wrangler dev --env dev
 
 publish:
-	npx wrangler kv:key put app.js --path ./dist/app.js --binding d1_northwind_assets --env production
-	npx wrangler kv:key put app.css --path ./dist/app.css --binding d1_northwind_assets --env production
+	npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env production
+	npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env production
 	npx wrangler publish --env production
 
 tail:
