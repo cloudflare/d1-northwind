@@ -1,0 +1,15 @@
+.material-icons {
+    @apply inline-flex justify-center items-center w-6 h-6;
+}
+
+.material-icons.widget-icon {
+    @apply w-20 h-20;
+}
+
+.material-icons.large {
+    @apply w-12 h-12;
+}
+
+.material-icons span {
+    @apply inline-flex;
+}
