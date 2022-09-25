@@ -65,7 +65,7 @@ async function handleRequest(request: Request, env: Env) {
         const apiResult = await apiEndpoints[api].handler(request, env);
         return jsonReply(apiResult, apiResult.error ? apiResult.error : 200);
     } else {
-        if (["app.js", "app.css"].includes(path)) {
+        if (env.USE_KV_PAGES && ["app.js", "app.css"].includes(path)) {
             const val = await env.assets.get(path, { type: "text" });
             return new Response(val, htmlHeaders(getMime(path)));
         } else {
@@ -76,5 +76,6 @@ async function handleRequest(request: Request, env: Env) {
 
 interface Env {
     DB: D1Database;
+    USE_KV_PAGES: string;
     assets: KVNamespace;
 }
