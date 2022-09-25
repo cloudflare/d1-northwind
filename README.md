@@ -55,6 +55,20 @@ npx wrangler d1 execute d1-northwind --file db/schema.sql
 npx wrangler d1 execute d1-northwind --file db/data.sql
 ```
 
+### Create KV namespaces
+
+KV is used to store the React application
+
+```
+npx wrangler kv:namespace create d1_northwind_assets
+npx wrangler kv:namespace create d1_northwind_assets_staging
+```
+
+Add ids to wrangler.toml
+
+
+
+
 ## Local development
 
 Wrangler D1 has support for local development:

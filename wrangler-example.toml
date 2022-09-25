@@ -20,14 +20,19 @@ database_id = "1"
 binding = "DB"
 database_name = "d1-northwind-staging"
 database_id = "41..."
+[[env.dev.kv_namespaces]]
+binding = "d1_northwind_assets"
+id = "06..."
 
 [env.production]
-# route = "pbx.radar.cfdata.org/*"
 [env.production.vars]
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "d1-northwind"
 database_id = "c6..."
+[[env.production.kv_namespaces]]
+binding = "d1_northwind_assets"
+id = "06..."
 
 [[migrations]]
 tag = "v1" # Should be unique for each entry

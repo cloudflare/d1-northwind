@@ -4,8 +4,9 @@ import { apiSuppliers, apiSupplier } from "./lib/api/suppliers";
 import { apiProducts, apiProduct } from "./lib/api/products";
 import { apiOrders, apiOrder } from "./lib/api/orders";
 import { apiEmployees, apiEmployee } from "./lib/api/employees";
-import { apiCustomer, apiCustomers} from "./lib/api/customers";
+import { apiCustomer, apiCustomers } from "./lib/api/customers";
 import { apiSearch } from "./lib/api/search";
+import { getMime } from "./lib/tools";
 
 // insert API endpoints here
 const apiEndpoints: Array<any> = [];
@@ -56,7 +57,7 @@ async function jsonReply(json: object, status = 200) {
 
 async function handleRequest(request: Request, env: Env) {
     let url = new URL(request.url);
-    let [, param] = url.pathname.slice(1).split("/");
+    let [path, param] = url.pathname.slice(1).split("/");
 
     const api = apiEndpoints.map((ep) => `${ep.method},${ep.path}`).indexOf(`${request.method},${param}`);
 
@@ -64,10 +65,16 @@ async function handleRequest(request: Request, env: Env) {
         const apiResult = await apiEndpoints[api].handler(request, env);
         return jsonReply(apiResult, apiResult.error ? apiResult.error : 200);
     } else {
-        return new Response(page, htmlHeaders("text/html"));
+        if (["app.js", "app.css"].includes(path)) {
+            const val = await env.d1_northwind_assets.get(path, { type: "text" });
+            return new Response(val, htmlHeaders(getMime(path)));
+        } else {
+            return new Response(page, htmlHeaders("text/html"));
+        }
     }
 }
 
 interface Env {
     DB: D1Database;
+    d1_northwind_assets: KVNamespace;
 }
