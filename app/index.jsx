@@ -114,7 +114,7 @@ const Dashboard = () => {
                         return (
                             <div class="pt-2">
                                 <p class="text-gray-400 text-xs">
-                                    {log.ts}, SQL, {log.duration}ms
+                                    {log.ts}, {log.served_by}, {log.duration}ms
                                 </p>
                                 {log.query.split("\n").map((l) => {
                                     return <p class="text-sm font-mono break-all">{l}</p>;

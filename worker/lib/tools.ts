@@ -22,6 +22,7 @@ const createSQLLog = (statements: any, response: any) => {
     for (let l in response) {
         logs.push({
             type: "sql",
+            served_by: response[l].served_by,
             query: statements[l],
             duration: response[l].duration,
             ts: new Date().toISOString(),
