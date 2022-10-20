@@ -37,6 +37,7 @@ npm install
 
 ```
 npx wrangler d1 create d1-northwind
+npx wrangler d1 create d1-northwind-staging
 ```
 
 Get the output database id and add it to wrangler.toml
@@ -55,6 +56,8 @@ npx wrangler d1 execute d1-northwind --file db/schema.sql
 npx wrangler d1 execute d1-northwind --file db/data.sql
 ```
 
+Do the same for ***northwind-staging*** if you need the staging environment.
+
 ### Create KV namespaces
 
 KV is used to store the React application
@@ -64,7 +67,35 @@ npx wrangler kv:namespace create assets
 npx wrangler kv:namespace create assets --preview
 ```
 
-Add ids to wrangler.toml
+Add the ids to wrangler.toml
+
+## React application
+
+Northwind is a React/Redux/Tailwind CSS application. The source code is in the [app folder](./app) folder.
+
+To build a new version run:
+
+```
+npx rollup -c rollup.app.config.js
+```
+
+## Worker backend
+
+Worker serves both the React app bundles from KV, and the Database API endpoints. The source code is in the [worker](./worker) folder.
+
+To build it run:
+
+```
+npx rollup -c rollup.worker.config.js
+```
+
+Or run:
+
+```
+make build
+```
+
+Which will build both the React app, and the Worker. Running wrangler also watches and rebuilds the worker.
 
 ## Local development
 
@@ -82,3 +113,43 @@ Wrangler will persist a local SQLite compatible sql file which you can access to
 sqlite3 .wrangler/state/d1/DB.sqlite3
 .tables
 ```
+
+## Dev environment
+
+You can test things in the developer environment, remotely.
+
+```
+npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env dev --preview
+npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env dev --preview
+npx wrangler dev --env dev
+```
+
+Or just run
+
+```
+make dev
+```
+
+## Deploying
+
+Deploy to production when you're done.
+
+```
+npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env production
+npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env production
+npx wrangler publish --env production
+```
+
+Or simply
+
+```
+make publish
+```
+
+Adding something like this will bind the worker to a specific route/domain.
+
+```
+[env.production]
+route = "northwind.d1sql.com/*"
+```
+

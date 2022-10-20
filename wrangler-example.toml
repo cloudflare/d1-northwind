@@ -27,6 +27,7 @@ id = "1e..."
 preview_id = "d3..."
 
 [env.production]
+# route = "northwind.d1sql.com/*"
 [env.production.vars]
 USE_KV_PAGES = "true"
 [[env.production.d1_databases]]
