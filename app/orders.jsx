@@ -19,7 +19,6 @@ const Order = (props) => {
             .then((res) => res.json())
             .then(
                 (result) => {
-                    console.log(result);
                     setOrder(result.order);
                     setProducts(result.products);
                     const pe = getPerformanceEvent(rand);

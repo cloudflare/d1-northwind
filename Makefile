@@ -1,5 +1,7 @@
 #!/usr/bin/env make
 
+export NO_D1_WARNING := true
+
 default:
 	@echo "Available Targets:"
 	@echo
@@ -7,6 +9,7 @@ default:
 	@echo "  local - local development using wranglers miniflare"
 	@echo "  dev - remote dev"
 	@echo "  publish - publish to production"
+	@echo "  staging - publish to staging"
 	@echo "  secret - create production HASH_SECRET"
 	@echo "  schema - create remote D1 schema"
 	@echo "  local-schema - create local D1 schema"
@@ -25,6 +28,11 @@ dev:
 	npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env dev --preview
 	npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env dev --preview
 	npx wrangler dev --env dev
+
+staging:
+	npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env staging
+	npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env staging
+	npx wrangler publish --env staging
 
 publish:
 	npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env production
