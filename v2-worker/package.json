@@ -9,7 +9,8 @@
   "scripts": {
     "deploy": "NO_D1_WARNING=true wrangler publish",
     "db:init": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/schema.sql",
-    "db:load": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data.sql"
+    "db:load": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data.sql",
+    "db:load-big": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data-big.sql"
   },
   "keywords": [],
   "author": "",
