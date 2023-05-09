@@ -10,3 +10,4 @@ node_modules/
 .githelp
 dist
 .wrangler
+.DS_Store
