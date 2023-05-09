@@ -1,38 +1,55 @@
-import type { V2_MetaFunction } from "@remix-run/cloudflare";
-
-export const meta: V2_MetaFunction = () => {
-  return [{ title: "New Remix App" }];
-};
-
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
+    <>
+      <div className="card-content">
+        <p className="text-2xl">Welcome to Northwind Traders</p>
+        <div className="pt-2">
+          <p className="text-gray-400 text-lg">Running on Cloudflare's D1</p>
+        </div>
+        <img
+          alt="Northwind Traders Database"
+          className="float-right object-scale-down w-96"
+          src="https://imagedelivery.net/4wj01aQOZZ0hemsvbxWAvA/763bcbcd-da6d-46ec-f5e1-70c1c1a33d00/public"
+        />
+        <p className="text-base pt-4">
+          This is a demo of the Northwind dataset, running on{" "}
           <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
+            className="link"
+            href="https://workers.cloudflare.com/"
+            target="_new"
           >
-            15m Quickstart Blog Tutorial
+            Cloudflare Workers
           </a>
-        </li>
-        <li>
+          , and D1 - Cloudflare's newest SQL database, running on SQLite.
+        </p>
+        <p className="text-base pt-4">
+          Read our{" "}
           <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
+            className="link"
+            href="https://blog.cloudflare.com/introducing-d1"
+            target="_new"
           >
-            Deep Dive Jokes App Tutorial
+            D1 announcement
+          </a>{" "}
+          to learn more about D1.
+        </p>
+        <p className="text-base pt-4">
+          This dataset was sourced from{" "}
+          <a
+            className="link"
+            href="https://github.com/jpwhite3/northwind-SQLite3"
+            target="_new"
+          >
+            northwind-SQLite3
           </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
+          .
+        </p>
+        <p className="text-base pt-4">
+          You can use the UI to explore Supplies, Orders, Customers, Employees
+          and Products, or you can use search if you know what you're looking
+          for.
+        </p>
+      </div>
+    </>
   );
 }

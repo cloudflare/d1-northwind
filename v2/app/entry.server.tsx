@@ -4,10 +4,22 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 
+import { configureStore } from "@reduxjs/toolkit";
 import type { EntryContext } from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
 import isbot from "isbot";
 import { renderToReadableStream } from "react-dom/server";
+import { clockReducer } from "./redux/clock";
+import { statsReducer } from "./redux/stats";
+import { Provider } from "react-redux";
+
+const store = configureStore({
+  reducer: {
+    // account: accountReducer,
+    clock: clockReducer,
+    stats: statsReducer,
+  },
+});
 
 export default async function handleRequest(
   request: Request,
@@ -16,7 +28,9 @@ export default async function handleRequest(
   remixContext: EntryContext
 ) {
   const body = await renderToReadableStream(
-    <RemixServer context={remixContext} url={request.url} />,
+    <Provider store={store}>
+      <RemixServer context={remixContext} url={request.url} />
+    </Provider>,
     {
       signal: request.signal,
       onError(error: unknown) {
