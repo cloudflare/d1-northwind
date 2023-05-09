@@ -1,10 +1,10 @@
-import React from "react";
-import { Link } from "react-router-dom";
+interface PaginateProps {
+  page: number;
+  pages: number;
+  setPage: (page: number) => void;
+}
 
-export const Paginate = (props) => {
-  const pages = props.pages;
-  const page = props.page;
-  const setPage = props.setPage;
+export const Paginate = ({ page, pages, setPage }: PaginateProps) => {
   const maxPages = 7;
   const marginPages = 3;
 
@@ -13,11 +13,13 @@ export const Paginate = (props) => {
       <div className="flex items-center justify-between">
         {pages > 1 ? (
           <div className="buttons">
+            {/* eslint-disable-next-line array-callback-return */}
             {[...Array(pages)].map((p, index) => {
               const bc = `button${index + 1 == page ? " active" : ""}`;
               if (index == 0) {
                 return (
                   <button
+                    key={index}
                     type="button"
                     onClick={() => setPage(1)}
                     className={bc}
@@ -30,6 +32,7 @@ export const Paginate = (props) => {
                 if (index + 1 == pages) {
                   return (
                     <button
+                      key={index}
                       type="button"
                       onClick={() => setPage(pages)}
                       className={bc}
@@ -41,6 +44,7 @@ export const Paginate = (props) => {
                 if (index + 1 < maxPages + page || index + 1 > pages - 2) {
                   return (
                     <button
+                      key={index}
                       type="button"
                       onClick={() => setPage(index + 1)}
                       className={bc}
@@ -62,27 +66,6 @@ export const Paginate = (props) => {
         <small>
           Page {page} of {pages}
         </small>
-      </div>
-    </div>
-  );
-};
-
-const AddTableField = (props) => {
-  return (
-    <div className="field">
-      <label className="label">{props.name}</label>
-      <div className="field-body">
-        <div className="field">
-          <div className="control icons-left">
-            {props.link ? (
-              <Link to={props.link} className="link">
-                {props.value}
-              </Link>
-            ) : (
-              `${props.value}`
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

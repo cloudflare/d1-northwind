@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { updateStats } from "~/redux/stats";
-import { useDispatch } from "react-redux";
+
 import { getPerformanceEvent } from "~/lib/tools";
 
 const Forms = (props) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { cid } = Object.keys(props).length ? props : useParams();
   const { back } = useParams();

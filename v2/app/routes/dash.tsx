@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { selectStats } from "~/redux/stats";
-import { useSelector } from "react-redux";
+import { useStats } from "~/components/StatsContext";
 
 interface Status {
   cf:
@@ -13,6 +12,7 @@ interface Status {
   module_list: string[];
   database_list: string[];
 }
+
 export default function Dash() {
   const [status, setStatus] = useState<Status>({
     cf: undefined,
@@ -20,7 +20,7 @@ export default function Dash() {
     module_list: [],
     database_list: [],
   });
-  const stats = useSelector(selectStats);
+  const stats = useStats();
 
   useEffect(() => {
     //TODO: use a loader
@@ -49,17 +49,17 @@ export default function Dash() {
           <div>
             <p className="text-xl">SQL Metrics</p>
             <p className="text-gray-800 text-sm">
-              Query count: {stats.queries}
+              Query count: {stats?.queries}
             </p>
             <p className="text-gray-800 text-sm">
-              Results count: {stats.results}
+              Results count: {stats?.results}
             </p>
-            <p className="text-gray-800 text-sm"># SELECT: {stats.select}</p>
+            <p className="text-gray-800 text-sm"># SELECT: {stats?.select}</p>
             <p className="text-gray-800 text-sm">
-              # SELECT WHERE: {stats.select_where}
+              # SELECT WHERE: {stats?.select_where}
             </p>
             <p className="text-gray-800 text-sm">
-              # SELECT LEFT JOIN: {stats.select_leftjoin}
+              # SELECT LEFT JOIN: {stats?.select_leftjoin}
             </p>
           </div>
         </div>
@@ -67,36 +67,25 @@ export default function Dash() {
         <p className="text-gray-800 text-xs">
           Explore the app and see metrics here
         </p>
-        {stats.log.map(
-          (
-            log: {
-              type: string;
-              query: string;
-              ts: string;
-              served_by: string;
-              duration: string;
-            },
-            index: number
-          ) => {
-            console.log(log);
-            if (log.type == "sql") {
-              return (
-                <div className="pt-2" key={index}>
-                  <p className="text-gray-400 text-xs">
-                    {log.ts}, {log.served_by}, {log.duration}ms
-                  </p>
-                  {log.query.split("\n").map((l: string, index: number) => {
-                    return (
-                      <p key={index} className="text-sm font-mono break-all">
-                        {l}
-                      </p>
-                    );
-                  })}
-                </div>
-              );
-            } else return null;
-          }
-        )}
+        {stats?.log?.map((log, index: number) => {
+          console.log(log);
+          if (log.type == "sql") {
+            return (
+              <div className="pt-2" key={index}>
+                <p className="text-gray-400 text-xs">
+                  {log.ts}, {log.served_by}, {log.duration}ms
+                </p>
+                {log.query.split("\n").map((l: string, index: number) => {
+                  return (
+                    <p key={index} className="text-sm font-mono break-all">
+                      {l}
+                    </p>
+                  );
+                })}
+              </div>
+            );
+          } else return null;
+        })}
       </div>
     </>
   );

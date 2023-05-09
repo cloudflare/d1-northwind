@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { updateStats } from "~/redux/stats";
-import { useDispatch } from "react-redux";
 import { getPerformanceEvent } from "~/lib/tools";
 
 const Search = (props) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { q } = useParams();
   const [keyword, setKeyword] = useState(q || "");

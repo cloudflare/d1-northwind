@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { updateStats } from "../redux/stats";
-import { useDispatch } from "react-redux";
 import { getPerformanceEvent } from "../lib/tools";
 import { Paginate } from "~/components";
 
 const Orders = (props) => {
-  const dispatch = useDispatch();
   const { search } = Object.keys(props).length ? props : useParams();
   const [isLoaded, setIsLoaded] = useState(false);
   const [pages, setPages] = useState(1);

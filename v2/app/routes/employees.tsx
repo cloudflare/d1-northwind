@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { updateStats } from "../redux/stats";
-import { useDispatch } from "react-redux";
 import { getPerformanceEvent } from "../lib/tools";
 import { Paginate, AddTableField } from "~/components";
 
 const Employee = (props) => {
-  const dispatch = useDispatch();
   const { id } = Object.keys(props).length ? props : useParams();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState(false);
