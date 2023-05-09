@@ -16,7 +16,7 @@ const Search = (props) => {
   const doSearch = () => {
     if (keyword) {
       const rand = Math.floor(Math.random() * 1000001);
-      const path = `https://northwind.d1sql.com/api/search?q=${keyword}&rand=${rand}&table=${table}`;
+      const path = `https://v2-worker.rozenmd.workers.dev/api/search?q=${keyword}&rand=${rand}&table=${table}`;
       fetch(path)
         .then((res) => res.json())
         .then(

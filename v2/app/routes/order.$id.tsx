@@ -14,7 +14,7 @@ const Order = (props) => {
 
   const reloadPage = () => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://northwind.d1sql.com/api/order?Id=${id}&rand=${rand}`;
+    const path = `https://v2-worker.rozenmd.workers.dev/api/order?Id=${id}&rand=${rand}`;
     fetch(path)
       .then((res) => res.json())
       .then(

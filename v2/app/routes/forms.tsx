@@ -31,7 +31,7 @@ const Forms = (props) => {
 
   useEffect(() => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://northwind.d1sql.com/api/client?cid=${cid}&rand=${rand}`;
+    const path = `https://v2-worker.rozenmd.workers.dev/api/client?cid=${cid}&rand=${rand}`;
     fetch(path)
       .then((res) => res.json())
       .then(
@@ -62,7 +62,7 @@ const Forms = (props) => {
 
   const submitClient = useCallback(async () => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://northwind.d1sql.com/api/clientChange?rand=${rand}`;
+    const path = `https://v2-worker.rozenmd.workers.dev/api/clientChange?rand=${rand}`;
     fetch(path, {
       method: "POST",
       body: JSON.stringify(client),

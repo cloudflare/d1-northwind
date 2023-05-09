@@ -15,7 +15,7 @@ const Orders = (props) => {
   const [orders, setOrders] = useState([]);
   const reloadPage = () => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://northwind.d1sql.com/api/orders?page=${page}${
+    const path = `https://v2-worker.rozenmd.workers.dev/api/orders?page=${page}${
       count > 0 ? `` : `&count=true`
     }${search ? `&search=${search}` : ""}&rand=${rand}`;
     fetch(path)

@@ -15,7 +15,7 @@ const Suppliers = (props) => {
   const [suppliers, setSuppliers] = useState([]);
   const reloadPage = () => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://northwind.d1sql.com/api/suppliers?page=${page}${
+    const path = `https://v2-worker.rozenmd.workers.dev/api/suppliers?page=${page}${
       count > 0 ? `` : `&count=true`
     }${search ? `&search=${search}` : ""}&rand=${rand}`;
     fetch(path)
