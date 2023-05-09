@@ -1,0 +1,21 @@
+{
+  "name": "v2-worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "deploy": "NO_D1_WARNING=true wrangler publish",
+    "db:init": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/schema.sql",
+    "db:load": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data.sql"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20230419.0",
+    "wrangler": "^2.20.0"
+  }
+}
