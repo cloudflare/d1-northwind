@@ -21,7 +21,7 @@ Requirements:
 - Please join our [developers Discord](https://discord.com/invite/cloudflaredev)
 - Please install [nodejs](https://github.com/nvm-sh/nvm) (we're using v18.8.0), npm and [npx](https://www.npmjs.com/package/npx)
 
-### Clone this repo, jump to this branch
+### Clone/fork this repo, jump to this branch
 
 ```
 git clone https://github.com/cloudflare/d1-northwind
@@ -64,11 +64,13 @@ npm run db:load OR npm run db:load-big
 
 Northwind is a React/Remix/Tailwind CSS application. The source code is in the [v2 folder](./v2) folder.
 
-To build a new version run:
+To run it run:
 
 ```
 npm run dev
 ```
+
+Deploying is done via Cloudflare Pages, so you'll want to fork this repo for that.
 
 ## Worker backend
 
@@ -80,4 +82,14 @@ To run it run:
 npm run dev
 ```
 
+and publish via:
+
+```
+npm run deploy
+```
+
+Once deployed, you'll need to search and replace `v2-worker.rozenmd.workers.dev` in v2 with the URL of your v2-worker.
+
 Which will start wrangler in dev mode.
+
+
