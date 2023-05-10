@@ -10,7 +10,7 @@ const Employee = (props) => {
 
   const reloadPage = () => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://v2-worker.rozenmd.workers.dev/api/employee?Id=${id}&rand=${rand}`;
+    const path = `https://northwind.d1sql.com/api/employee?Id=${id}&rand=${rand}`;
     fetch(path)
       .then((res) => res.json())
       .then(
@@ -119,7 +119,7 @@ const Employees = (props) => {
   const [employees, setEmployees] = useState([]);
   const reloadPage = () => {
     const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://v2-worker.rozenmd.workers.dev/api/employees?page=${page}${
+    const path = `https://northwind.d1sql.com/api/employees?page=${page}${
       count > 0 ? `` : `&count=true`
     }${search ? `&search=${search}` : ""}&rand=${rand}`;
     fetch(path)

@@ -1,57 +1,40 @@
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { getPerformanceEvent } from "~/lib/tools";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useStatsDispatch } from "~/components/StatsContext";
 
-const Search = (props) => {
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const keyword = url.searchParams.get("q");
+  const table = url.searchParams.get("table");
+  const rand = Math.floor(Math.random() * 1000001);
+  const path = `https://northwind.d1sql.com/api/search?q=${keyword}&rand=${rand}&table=${
+    table ?? "products"
+  }`;
+  const res = await fetch(path);
+  const result = (await res.json()) as any;
+  return json({ ...result });
+};
+type LoaderType = Awaited<ReturnType<typeof loader>>;
+
+const Search = () => {
   const navigate = useNavigate();
-  const { q } = useParams();
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q");
+  const data = useLoaderData<LoaderType>();
+  const { results } = data;
   const [keyword, setKeyword] = useState(q || "");
-  const [results, setResults] = useState([]);
   const [table, setTable] = useState("products");
-  const [log, setLog] = useState("");
-
-  const doSearch = () => {
-    if (keyword) {
-      const rand = Math.floor(Math.random() * 1000001);
-      const path = `https://v2-worker.rozenmd.workers.dev/api/search?q=${keyword}&rand=${rand}&table=${table}`;
-      fetch(path)
-        .then((res) => res.json())
-        .then(
-          (result) => {
-            console.log(result);
-            if (result.stats.log[0]) {
-              setLog(
-                `${result.stats.log[0].query} (${result.stats.log[0].duration}ms)`
-              );
-            }
-            setResults(result.results);
-            const pe = getPerformanceEvent(rand);
-            if (pe) {
-              result.stats.log.unshift({
-                type: "api",
-                path: path,
-                duration: pe.responseEnd - pe.requestStart,
-                ts: new Date().toISOString(),
-              });
-            }
-            dispatch(updateStats(result.stats));
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
-    }
-  };
-
+  const dispatch = useStatsDispatch();
   useEffect(() => {
-    doSearch();
-  }, [table]);
+    dispatch && data.stats && dispatch(data.stats);
+  }, [dispatch, data.stats]);
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: any) => {
     if (event.key === "Enter") {
-      console.log(`searching ${keyword}`);
-      navigate(`/search/${keyword}`, { replace: false });
-      doSearch();
+      navigate(`/search?q=${keyword}&table=${table}`);
     }
   };
 
@@ -128,7 +111,7 @@ const Search = (props) => {
           {results.length ? (
             <>
               {/* <pre className="text-gray-400 text-sm">{log}</pre> */}
-              {results.map((r, idx) => {
+              {results.map((r: any, idx: number) => {
                 return (
                   <>
                     {table == "products" ? (
@@ -165,4 +148,4 @@ const Search = (props) => {
   );
 };
 
-export { Search };
+export default Search;

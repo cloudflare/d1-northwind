@@ -1,43 +1,33 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-
-import { getPerformanceEvent } from "../lib/tools";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AddTableField } from "~/components/AddTableField";
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
+import invariant from "tiny-invariant";
+import { useStatsDispatch } from "~/components/StatsContext";
+import { useLoaderData } from "@remix-run/react";
 
-const Employee = (props) => {
-  const { id } = Object.keys(props).length ? props : useParams();
+export const loader: LoaderFunction = async ({ params }) => {
+  invariant(params.id, "Missing id");
+
+  const rand = Math.floor(Math.random() * 1000001);
+  const path = `https://northwind.d1sql.com/api/employee?Id=${params.id}&rand=${rand}`;
+
+  const res = await fetch(path);
+  const result = (await res.json()) as any;
+
+  return json({ ...result });
+};
+type LoaderType = Awaited<ReturnType<typeof loader>>;
+
+const Employee = () => {
   const navigate = useNavigate();
-  const [employee, setEmployee] = useState(false);
-
-  const reloadPage = () => {
-    const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://v2-worker.rozenmd.workers.dev/api/employee?Id=${id}&rand=${rand}`;
-    fetch(path)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          console.log(result);
-          setEmployee(result.employee);
-          const pe = getPerformanceEvent(rand);
-          if (pe) {
-            result.stats.log.unshift({
-              type: "api",
-              path: path,
-              duration: pe.responseEnd - pe.requestStart,
-              ts: new Date().toISOString(),
-            });
-          }
-          dispatch(updateStats(result.stats));
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-  };
-
+  const data = useLoaderData<LoaderType>();
+  const { employee } = data;
+  const dispatch = useStatsDispatch();
   useEffect(() => {
-    reloadPage();
-  }, [id]);
+    dispatch && data.stats && dispatch(data.stats);
+  }, [dispatch, data.stats]);
 
   return (
     <>

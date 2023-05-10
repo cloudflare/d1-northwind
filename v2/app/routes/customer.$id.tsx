@@ -11,7 +11,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   invariant(params.id, "Missing id");
 
   const rand = Math.floor(Math.random() * 1000001);
-  const path = `https://v2-worker.rozenmd.workers.dev/api/customer?Id=${params.id}&rand=${rand}`;
+  const path = `https://northwind.d1sql.com/api/customer?Id=${params.id}&rand=${rand}`;
 
   const res = await fetch(path);
   const result = (await res.json()) as any;
@@ -24,7 +24,7 @@ const Customer = () => {
   const navigate = useNavigate();
   const data = useLoaderData<LoaderType>();
   const { customer } = data;
-  console.log("data.stats: ", data.stats);
+
   const dispatch = useStatsDispatch();
   useEffect(() => {
     dispatch && data.stats && dispatch(data.stats);

@@ -5,4 +5,4 @@ name = "v2-worker"
 [[d1_databases]]
 binding = "DB"
 database_name = "northwind"
-database_id = "8bdfdde4-71e1-47a5-9192-23901b47ec56"
+database_id = "358c800e-68c1-4ef3-a5d0-b324945c0a91"

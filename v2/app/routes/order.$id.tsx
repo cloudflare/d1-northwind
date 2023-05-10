@@ -1,43 +1,34 @@
-import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { getPerformanceEvent } from "~/lib/tools";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AddTableField } from "~/components";
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
+import invariant from "tiny-invariant";
+import { useLoaderData } from "@remix-run/react";
+import { useStatsDispatch } from "~/components/StatsContext";
 
-const Order = (props) => {
-  const { id } = Object.keys(props).length ? props : useParams();
+export const loader: LoaderFunction = async ({ params }) => {
+  invariant(params.id, "Missing id");
+
+  const rand = Math.floor(Math.random() * 1000001);
+  const path = `https://northwind.d1sql.com/api/order?Id=${params.id}&rand=${rand}`;
+
+  const res = await fetch(path);
+  const result = (await res.json()) as any;
+
+  return json({ ...result });
+};
+type LoaderType = Awaited<ReturnType<typeof loader>>;
+
+const Order = () => {
   const navigate = useNavigate();
-  const [order, setOrder] = useState(false);
-  const [products, setProducts] = useState([]);
+  const data = useLoaderData<LoaderType>();
+  const { order, products } = data;
 
-  const reloadPage = () => {
-    const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://v2-worker.rozenmd.workers.dev/api/order?Id=${id}&rand=${rand}`;
-    fetch(path)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setOrder(result.order);
-          setProducts(result.products);
-          const pe = getPerformanceEvent(rand);
-          if (pe) {
-            result.stats.log.unshift({
-              type: "api",
-              path: path,
-              duration: pe.responseEnd - pe.requestStart,
-              ts: new Date().toISOString(),
-            });
-          }
-          dispatch(updateStats(result.stats));
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-  };
-
+  const dispatch = useStatsDispatch();
   useEffect(() => {
-    reloadPage();
-  }, []);
+    dispatch && data.stats && dispatch(data.stats);
+  }, [dispatch, data.stats]);
 
   return (
     <>
@@ -118,9 +109,10 @@ const Order = (props) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product, index) => {
+                  {/* TODO: add Types */}
+                  {products.map((product: any, index: number) => {
                     return (
-                      <tr>
+                      <tr key={index}>
                         <td data-label="Product">
                           <Link className="link" to={`/product/${product.Id}`}>
                             {product.ProductName}
@@ -130,8 +122,9 @@ const Order = (props) => {
                         <td data-label="OrderPrice">{`$${parseFloat(
                           product.OrderUnitPrice
                         ).toFixed(2)}`}</td>
-                        <td data-label="TotalPrice">{`$${parseFloat(
-                          product.OrderUnitPrice * product.Quantity
+                        <td data-label="TotalPrice">{`$${(
+                          Number(product.OrderUnitPrice) *
+                          Number(product.Quantity)
                         ).toFixed(2)}`}</td>
                         <td data-label="Discount">{`${
                           product.Discount * 100

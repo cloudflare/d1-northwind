@@ -24,7 +24,7 @@ export default function Dash() {
 
   useEffect(() => {
     //TODO: use a loader
-    const path = `https://v2-worker.rozenmd.workers.dev/api/status`;
+    const path = `https://northwind.d1sql.com/api/status`;
     fetch(path)
       .then((res) => res.json())
       .then(
