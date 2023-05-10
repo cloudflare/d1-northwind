@@ -70,7 +70,7 @@ To run it run:
 npm run dev
 ```
 
-Deploying is done via Cloudflare Pages, so you'll want to fork this repo for that.
+Deploying is done via Cloudflare Pages, so you'll want to fork this repo for that. Once in Cloudflare Pages, set the "main" deployment branch to `rozenmd/remix-pages`.
 
 ## Worker backend
 
