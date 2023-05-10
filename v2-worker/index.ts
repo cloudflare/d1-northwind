@@ -35,16 +35,6 @@ export default {
   },
 };
 
-const htmlHeaders = (contentType: string) => {
-  return {
-    headers: {
-      "content-type": `${contentType};charset=UTF-8`,
-      "Access-Control-Allow-Origin": "*",
-    },
-    status: 200,
-  };
-};
-
 async function jsonReply(json: object, status = 200) {
   return new Response(JSON.stringify(json), {
     headers: {
@@ -61,6 +51,9 @@ async function handleRequest(request: Request, env: Env) {
   let url = new URL(request.url);
   let [path, param] = url.pathname.slice(1).split("/");
 
+  if (!path.includes("api")) {
+    return new Response("Not found", { status: 404 });
+  }
   const api = apiEndpoints
     .map((ep) => `${ep.method},${ep.path}`)
     .indexOf(`${request.method},${param}`);
