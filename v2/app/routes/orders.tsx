@@ -1,83 +1,71 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { updateStats } from "../redux/stats";
-import { useDispatch } from "react-redux";
-import { getPerformanceEvent } from "../lib/tools";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Paginate } from "~/components";
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
+import { useStatsDispatch } from "~/components/StatsContext";
 
-const Orders = (props) => {
-  const dispatch = useDispatch();
-  const { search } = Object.keys(props).length ? props : useParams();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [pages, setPages] = useState(1);
-  const [page, setPage] = useState(1);
-  const [count, setCount] = useState(0);
-  const [orders, setOrders] = useState([]);
-  const reloadPage = () => {
-    const rand = Math.floor(Math.random() * 1000001);
-    const path = `https://northwind.d1sql.com/api/orders?page=${page}${
-      count > 0 ? `` : `&count=true`
-    }${search ? `&search=${search}` : ""}&rand=${rand}`;
-    fetch(path)
-      .then((res) => res.json())
-      .then(
-        (result) => {
-          setIsLoaded(true);
-          if (result.pages) setPages(result.pages);
-          if (result.total) setCount(result.total);
-          setOrders(result.orders);
-          const pe = getPerformanceEvent(rand);
-          if (pe) {
-            result.stats.log.unshift({
-              type: "api",
-              path: path,
-              duration: pe.responseEnd - pe.requestStart,
-              ts: new Date().toISOString(),
-            });
-          }
-          dispatch(updateStats(result.stats));
-        },
-        (error) => {
-          setIsLoaded(true);
-          console.log(error);
-        }
-      );
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+
+  const page = Number(url.searchParams.get("page")) || 1;
+  const count = url.searchParams.get("count");
+  const search = url.searchParams.get("search");
+
+  const rand = Math.floor(Math.random() * 1000001);
+  const path = `https://v2-worker.rozenmd.workers.dev/api/orders?page=${page}${
+    Number(count) > 0 ? `` : `&count=true`
+  }${search ? `&search=${search}` : ""}&rand=${rand}`;
+
+  const res = await fetch(path);
+  const result = (await res.json()) as any;
+
+  return json({ ...result });
+};
+type LoaderType = Awaited<ReturnType<typeof loader>>;
+
+interface Order {
+  Id: string;
+  TotalProducts: string;
+  TotalProductsPrice: string;
+  TotalProductsItems: string;
+  OrderDate: string;
+  ShipName: string;
+  ShipCity: string;
+  ShipCountry: string;
+}
+
+const Orders = () => {
+  const data = useLoaderData<LoaderType>();
+  const navigate = useNavigate();
+  const { orders, page, pages } = data;
+  const dispatch = useStatsDispatch();
+
+  useEffect(() => {
+    dispatch && data.stats && dispatch(data.stats);
+  }, [dispatch, data.stats]);
+
+  const setPage = (page: number) => {
+    navigate(`/orders?page=${page}`);
   };
-
-  useEffect(() => {
-    if (isLoaded) {
-      if (search) {
-        if (page != 1) {
-          setPage(1);
-        } else {
-          reloadPage();
-        }
-      } else {
-        reloadPage();
-      }
-    }
-  }, [search]);
-
-  useEffect(() => {
-    reloadPage();
-  }, [page]);
-
   return (
     <>
       {orders.length ? (
         <div className="card has-table">
           <header className="card-header">
             <p className="card-header-title">Orders</p>
-            <a className="card-header-icon">
+            <button className="card-header-icon">
               <span
                 className="material-icons"
                 onClick={() => {
-                  reloadPage();
+                  //eslint-disable-next-line
+                  window.location.href = window.location.href;
                 }}
               >
                 redo
               </span>
-            </a>
+            </button>
           </header>
           <div className="card-content">
             <table>
@@ -95,9 +83,9 @@ const Orders = (props) => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order, index) => {
+                {orders.map((order: Order, index: number) => {
                   return (
-                    <tr>
+                    <tr key={index}>
                       <td data-label="Id">
                         <Link className="link" to={`/order/${order.Id}`}>
                           {order.Id}

@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectClock } from "../redux/clock";
 
 export const Nav = () => {
-  const clock = useSelector(selectClock);
+  const clock = new Date().toLocaleTimeString();
   const [subMenu, setSubMenu] = useState(false);
 
   return (

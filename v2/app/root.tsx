@@ -8,12 +8,15 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { updateClock } from "./redux/clock";
-import styles from "./tailwind.css";
-import { Nav } from "./components/Nav";
-import { Aside } from "./components/Aside";
+import { useReducer } from "react";
+import styles from "~/tailwind.css";
+import { Nav } from "~/components/Nav";
+import { Aside } from "~/components/Aside";
+import {
+  StatsContext,
+  StatsDispatchContext,
+  initialStats,
+} from "~/components/StatsContext";
 
 export const links: LinksFunction = () => {
   const appLinks = [
@@ -32,16 +35,31 @@ export const links: LinksFunction = () => {
   return appLinks;
 };
 
-export default function App() {
-  const dispatch = useDispatch();
+const statsReducer = (state: any, action: any) => {
+  if (action.queries) state.queries += action.queries;
+  if (action.results) state.results += action.results;
+  if (action.select) state.select += action.select;
+  if (action.select_where) state.select_where += action.select_where;
+  if (action.select_leftjoin) state.select_leftjoin += action.select_leftjoin;
+  if (action.select_fts) state.select_fts += action.select_fts;
+  if (action.update) state.update += action.update;
+  if (action.delete) state.delete += action.delete;
+  if (action.insert) state.insert += action.insert;
+  if (action.log) state.log.push(...action.log);
+  return state;
+};
 
-  useEffect(() => {
-    // dispatch(login());
-    setInterval(() => {
-      dispatch(updateClock());
-    }, 1000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // runs only once
+export default function App() {
+  // const dispatch = useDispatch();
+  const [stats, dispatch] = useReducer(statsReducer, initialStats);
+
+  // useEffect(() => {
+  //   // dispatch(login());
+  //   setInterval(() => {
+  //     dispatch(updateClock());
+  //   }, 1000);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []); // runs only once
   return (
     <html lang="en">
       <head>
@@ -108,14 +126,18 @@ export default function App() {
       </head>
       <body>
         <div id="app">
-          <Nav />
-          <Aside />
-          <section className="section main-section">
-            <Outlet />
-          </section>
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
+          <StatsContext.Provider value={stats}>
+            <StatsDispatchContext.Provider value={dispatch}>
+              <Nav />
+              <Aside />
+              <section className="section main-section">
+                <Outlet />
+              </section>
+              <ScrollRestoration />
+              <Scripts />
+              <LiveReload />
+            </StatsDispatchContext.Provider>
+          </StatsContext.Provider>
         </div>
       </body>
     </html>
