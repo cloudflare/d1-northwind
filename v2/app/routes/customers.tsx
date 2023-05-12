@@ -15,7 +15,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const search = url.searchParams.get("search");
 
   const rand = Math.floor(Math.random() * 1000001);
-  const path = `https://v2-worker.rozenmd.workers.dev/api/customers?page=${page}${
+  const path = `https://northwind-v2.d1sql.com/api/customers?page=${page}${
     Number(count) > 0 ? `` : `&count=true`
   }${search ? `&search=${search}` : ""}&rand=${rand}`;
 

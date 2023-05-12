@@ -10,7 +10,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const keyword = url.searchParams.get("q");
   const table = url.searchParams.get("table");
   const rand = Math.floor(Math.random() * 1000001);
-  const path = `https://v2-worker.rozenmd.workers.dev/api/search?q=${keyword}&rand=${rand}&table=${
+  const path = `https://northwind-v2.d1sql.com/api/search?q=${keyword}&rand=${rand}&table=${
     table ?? "products"
   }`;
   const res = await fetch(path);

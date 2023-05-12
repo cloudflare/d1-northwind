@@ -1,8 +1,8 @@
 compatibility_date = "2022-04-05"
 main = "index.ts"
-name = "v2-worker"
+name = "northwind-v2-worker"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "northwind"
-database_id = "1c552132-a6f3-403d-9fa6-a171590e91ab"
+database_id = "b15e4b35-5861-440b-b3c5-4af1d6180c64"
