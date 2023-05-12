@@ -10,4 +10,4 @@ node_modules/
 .githelp
 dist
 .wrangler
-wrangler.toml
+.DS_Store
