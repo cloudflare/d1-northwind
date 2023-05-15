@@ -1,6 +1,6 @@
 compatibility_date = "2022-04-05"
 main = "index.ts"
-name = "northwind-v2-worker"
+name = "northwind-worker"
 
 [[d1_databases]]
 binding = "DB"

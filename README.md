@@ -4,27 +4,27 @@ This repo has the code for https://northwind.d1sql.com/
 
 ## What we use
 
- * Cloudflare [Workers](https://workers.cloudflare.com/) for computing
- * [D1](https://blog.cloudflare.com/introducing-d1/) for database
- * [Wrangler](https://github.com/cloudflare/wrangler2) for building
- * [Typescript](https://www.typescriptlang.org/) for better Javascript
- * [Tailwind CSS](https://tailwindcss.com/) for the UI
- * [React](https://reactjs.org/) for DOM interaction
- * [Rollup](https://rollupjs.org/) and plugins for bundling the project
+- Cloudflare [Workers](https://workers.cloudflare.com/) for computing
+- [D1](https://blog.cloudflare.com/introducing-d1/) for database
+- [Wrangler](https://github.com/cloudflare/wrangler2) for building
+- [Typescript](https://www.typescriptlang.org/) for better Javascript
+- [Tailwind CSS](https://tailwindcss.com/) for the UI
+- [React](https://reactjs.org/) for DOM interaction
+- [Remix](https://remix.run/docs/en/main/) for the React framework
 
 ## Get the demo running
 
 Requirements:
 
- * You need a Cloudflare Account
- * You need to get D1 [enabled](https://www.cloudflare.com/en-gb/lp/d1/) for your account
- * Please join our [developers Discord](https://discord.com/invite/cloudflaredev)
- * Please install [nodejs](https://github.com/nvm-sh/nvm) (we're using v18.8.0), npm and [npx](https://www.npmjs.com/package/npx)
+- You need a Cloudflare Account
+- You need to get D1 [enabled](https://www.cloudflare.com/en-gb/lp/d1/) for your account
+- Please join our [developers Discord](https://discord.com/invite/cloudflaredev)
+- Please install [nodejs](https://github.com/nvm-sh/nvm) (we're using v18.8.0), npm and [npx](https://www.npmjs.com/package/npx)
 
 ### Clone this repo
 
 ```
-git@github.com:cloudflare/d1-northwind.git
+git clone https://github.com/cloudflare/d1-northwind
 ```
 
 ### Install packages
@@ -36,42 +36,29 @@ npm install
 ### Creating the database
 
 ```
-npx wrangler d1 create d1-northwind
-npx wrangler d1 create d1-northwind-staging
+npm run db:new
+
 ```
 
-Get the output database id and add it to wrangler.toml
+Get the output database id and add it to worker/wrangler.toml
 
 ```
 [[d1_databases]]
 binding = "DB"
-database_name = "d1-northwind"
+database_name = "northwind"
 database_id = "..."
 ```
 
 ### Importing the database
 
 ```
-npx wrangler d1 execute d1-northwind --file db/schema.sql
-npx wrangler d1 execute d1-northwind --file db/data.sql
+npm run db:init
+npm run db:load
 ```
-
-Do the same for ***northwind-staging*** if you need the staging environment.
-
-### Create KV namespaces
-
-KV is used to store the React application
-
-```
-npx wrangler kv:namespace create assets
-npx wrangler kv:namespace create assets --preview
-```
-
-Add the ids to wrangler.toml
 
 ## React application
 
-Northwind is a React/Redux/Tailwind CSS application. The source code is in the [app folder](./app) folder.
+Northwind is a React/Remix/Tailwind CSS application. The source code is in the [app folder](./frontend) folder.
 
 To build a new version run:
 
@@ -152,4 +139,3 @@ Adding something like this will bind the worker to a specific route/domain.
 [env.production]
 route = "northwind.d1sql.com/*"
 ```
-

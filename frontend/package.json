@@ -1,4 +1,5 @@
 {
+  "name": "frontend",
   "private": true,
   "sideEffects": false,
   "scripts": {

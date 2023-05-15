@@ -1,5 +1,5 @@
 {
-  "name": "v2-worker",
+  "name": "worker",
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
