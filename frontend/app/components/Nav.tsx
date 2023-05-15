@@ -49,11 +49,11 @@ export const Nav = () => {
               </button>
               <div className="navbar-dropdown">
                 <a
-                  href="https://blog.cloudflare.com/introducing-d1"
+                  href="https://blog.cloudflare.com/d1-turning-it-up-to-11/"
                   className="navbar-item"
                 >
                   <span className="icon material-icons">link</span>
-                  <span>Introducing D1</span>
+                  <span>Reintroducing D1</span>
                 </a>
                 <a
                   href="https://www.sqlite.org/lang.html"
