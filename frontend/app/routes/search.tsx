@@ -10,9 +10,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   const keyword = url.searchParams.get("q");
   const table = url.searchParams.get("table");
   const rand = Math.floor(Math.random() * 1000001);
-  const path = `https://northwind-v2.d1sql.com/api/search?q=${keyword}&rand=${rand}&table=${
-    table ?? "products"
-  }`;
+  const path = `${
+    process.env.NODE_ENV !== "production" && "http://127.0.0.1:8787"
+  }/api/search?q=${keyword}&rand=${rand}&table=${table ?? "products"}`;
   const res = await fetch(path);
   const result = (await res.json()) as any;
   return json({ ...result });

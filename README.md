@@ -27,6 +27,8 @@ Requirements:
 git clone https://github.com/cloudflare/d1-northwind
 ```
 
+Note that this repository uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/workspaces?v=true) to manage dependencies. You can run either Worker's npm commands from the root of the repo by adding either `-w frontend` or `-w worker` to your npm command.
+
 ### Install packages
 
 ```
@@ -37,7 +39,6 @@ npm install
 
 ```
 npm run db:new
-
 ```
 
 Get the output database id and add it to worker/wrangler.toml
@@ -63,58 +64,40 @@ Northwind is a React/Remix/Tailwind CSS application. The source code is in the [
 To build a new version run:
 
 ```
-npx rollup -c rollup.app.config.js
+npm run build -w frontend
+```
+
+To run the dev server, run:
+
+```
+npm run dev -w frontend
 ```
 
 ## Worker backend
 
-Worker serves both the React app bundles from KV, and the Database API endpoints. The source code is in the [worker](./worker) folder.
-
-To build it run:
-
-```
-npx rollup -c rollup.worker.config.js
-```
-
-Or run:
-
-```
-make build
-```
-
-Which will build both the React app, and the Worker. Running wrangler also watches and rebuilds the worker.
+Worker serves the Database API endpoints. The source code is in the [worker](./worker) folder.
 
 ## Local development
 
 Wrangler D1 has support for local development:
 
 ```
-npx wrangler d1 execute d1-northwind --file db/schema.sql --local
-npx wrangler d1 execute d1-northwind --file db/data.sql --local
-npx wrangler dev --local --persist --env local --assets local-assets --ip 0.0.0.0
+npm run local:init -w worker
+npm run local:load -w worker
+npm run dev -w worker
+```
+
+This will start the Worker at `http://127.0.0.1:8787` with the database loaded with data. At this point you can start the frontend in a separate terminal window:
+
+```
+npm run dev -w frontend
 ```
 
 Wrangler will persist a local SQLite compatible sql file which you can access to with other clients:
 
 ```
-sqlite3 .wrangler/state/d1/DB.sqlite3
+sqlite3 worker/.wrangler/state/d1/DB.sqlite3
 .tables
-```
-
-## Dev environment
-
-You can test things in the developer environment, remotely.
-
-```
-npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env dev --preview
-npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env dev --preview
-npx wrangler dev --env dev
-```
-
-Or just run
-
-```
-make dev
 ```
 
 ## Deploying
@@ -122,20 +105,5 @@ make dev
 Deploy to production when you're done.
 
 ```
-npx wrangler kv:key put app.js --path ./dist/app.js --binding assets --env production
-npx wrangler kv:key put app.css --path ./dist/app.css --binding assets --env production
-npx wrangler publish --env production
-```
-
-Or simply
-
-```
-make publish
-```
-
-Adding something like this will bind the worker to a specific route/domain.
-
-```
-[env.production]
-route = "northwind.d1sql.com/*"
+npm run deploy -w worker
 ```

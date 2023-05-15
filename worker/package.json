@@ -7,12 +7,10 @@
     "lib": "lib"
   },
   "scripts": {
-    "dev": "NO_D1_WARNING=true wrangler dev",
+    "dev": "NO_D1_WARNING=true wrangler dev --local --persist",
     "deploy": "NO_D1_WARNING=true wrangler publish",
-    "db:new": "NO_D1_WARNING=true wrangler d1 create northwind --experimental",
-    "db:init": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/schema.sql",
-    "db:load": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data.sql",
-    "db:load-big": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data-big.sql"
+    "local:init": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/schema.sql --local",
+    "local:load": "NO_D1_WARNING=true wrangler d1 execute northwind --file=../db/data-big.sql --local"
   },
   "keywords": [],
   "author": "",

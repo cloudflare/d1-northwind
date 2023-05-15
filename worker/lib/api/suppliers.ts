@@ -41,7 +41,7 @@ const apiSuppliers = () => {
           suppliers: suppliers,
         };
       } catch (e: any) {
-        return { error: 404, msg: e.toString() };
+        return { error: 404, msg: e.cause.toString() };
       }
     },
   };

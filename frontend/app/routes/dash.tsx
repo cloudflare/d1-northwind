@@ -24,7 +24,9 @@ export default function Dash() {
 
   useEffect(() => {
     //TODO: use a loader
-    const path = `https://northwind-v2.d1sql.com/api/status`;
+    const path = `${
+      process.env.NODE_ENV !== "production" && "http://127.0.0.1:8787"
+    }/api/status`;
     fetch(path)
       .then((res) => res.json())
       .then(

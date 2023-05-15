@@ -15,9 +15,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   const search = url.searchParams.get("search");
 
   const rand = Math.floor(Math.random() * 1000001);
-  const path = `https://northwind-v2.d1sql.com/api/customers?page=${page}${
-    Number(count) > 0 ? `` : `&count=true`
-  }${search ? `&search=${search}` : ""}&rand=${rand}`;
+  const path = `${
+    process.env.NODE_ENV !== "production" && "http://127.0.0.1:8787"
+  }/api/customers?page=${page}${Number(count) > 0 ? `` : `&count=true`}${
+    search ? `&search=${search}` : ""
+  }&rand=${rand}`;
 
   const res = await fetch(path);
   const result = (await res.json()) as any;

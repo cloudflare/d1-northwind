@@ -11,7 +11,9 @@ export const loader: LoaderFunction = async ({ params }) => {
   invariant(params.id, "Missing id");
 
   const rand = Math.floor(Math.random() * 1000001);
-  const path = `https://northwind-v2.d1sql.com/api/product?Id=${params.id}&rand=${rand}`;
+  const path = `${
+    process.env.NODE_ENV !== "production" && "http://127.0.0.1:8787"
+  }/api/product?Id=${params.id}&rand=${rand}`;
 
   const res = await fetch(path);
   const result = (await res.json()) as any;
