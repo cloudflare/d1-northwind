@@ -5,6 +5,7 @@
   "scripts": {
     "build": "remix build",
     "dev:remix": "remix watch",
+    "deploy": "npm run build && wrangler pages publish ./public",
     "dev:wrangler": "cross-env NODE_ENV=development npm run wrangler",
     "dev": "npm-run-all build --parallel \"dev:*\"",
     "start": "cross-env NODE_ENV=production npm run wrangler",
@@ -33,7 +34,7 @@
     "npm-run-all": "^4.1.5",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.4",
-    "wrangler": "https://prerelease-registry.devprod.cloudflare.dev/workers-sdk/prs/3048/npm-package-wrangler-3048"
+    "wrangler": "^3.0.0"
   },
   "engines": {
     "node": ">=16.13"

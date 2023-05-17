@@ -106,4 +106,5 @@ Deploy to production when you're done.
 
 ```
 npm run deploy -w worker
+npm run deploy -w frontend
 ```
