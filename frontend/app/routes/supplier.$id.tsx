@@ -12,7 +12,9 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   const rand = Math.floor(Math.random() * 1000001);
   const path = `${
-    process.env.NODE_ENV !== "production" && "http://127.0.0.1:8787"
+    process.env.NODE_ENV === "production"
+      ? "https://api.northwind.d1sql.com"
+      : "http://127.0.0.1:8787"
   }/api/supplier?Id=${params.id}&rand=${rand}`;
 
   const res = await fetch(path);

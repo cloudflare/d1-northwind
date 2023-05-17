@@ -1,6 +1,7 @@
 compatibility_date = "2022-04-05"
 main = "index.ts"
 name = "northwind-worker"
+route = "api.northwind.d1sql.com/*"
 
 [[d1_databases]]
 binding = "DB"
