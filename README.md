@@ -96,7 +96,7 @@ npm run dev -w frontend
 Wrangler will persist a local SQLite compatible sql file which you can access to with other clients:
 
 ```
-sqlite3 worker/.wrangler/state/d1/DB.sqlite3
+sqlite3 worker/.wrangler/state/v3/d1/*/db.sqlite
 .tables
 ```
 
