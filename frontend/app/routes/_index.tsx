@@ -12,7 +12,7 @@ export default function Index() {
           src="https://imagedelivery.net/4wj01aQOZZ0hemsvbxWAvA/763bcbcd-da6d-46ec-f5e1-70c1c1a33d00/public"
         />
         <p className="text-base pt-4">
-          This is a demo of the Northwind dataset, running on{" "}
+          This is a demo of the Northwind dataset, running on{' '}
           <a
             className="link"
             href="https://workers.cloudflare.com/"
@@ -23,18 +23,18 @@ export default function Index() {
           , and D1 - Cloudflare's newest SQL database, running on SQLite.
         </p>
         <p className="text-base pt-4">
-          Read our{" "}
+          Read our{' '}
           <a
             className="link"
-            href="https://blog.cloudflare.com/introducing-d1"
+            href="https://blog.cloudflare.com/d1-turning-it-up-to-11/"
             target="_new"
           >
-            D1 announcement
-          </a>{" "}
+            most recent D1 announcement
+          </a>{' '}
           to learn more about D1.
         </p>
         <p className="text-base pt-4">
-          This dataset was sourced from{" "}
+          This dataset was sourced from{' '}
           <a
             className="link"
             href="https://github.com/jpwhite3/northwind-SQLite3"
@@ -51,5 +51,5 @@ export default function Index() {
         </p>
       </div>
     </>
-  );
+  )
 }

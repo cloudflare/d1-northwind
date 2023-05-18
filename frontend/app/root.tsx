@@ -66,25 +66,23 @@ export default function App() {
         <meta charSet="utf-8" />
         <title>Northwind Traders D1 Demo</title>
         <meta name="robots" content="noindex, nofollow" />
-        <meta property="og:site_name" content="The Cloudflare Blog" />
-        <meta property="og:type" content="website" />
         <meta
           property="og:title"
-          content="Announcing D1: Our first SQL database"
+          content="Northind Traders, running on Cloudflare's D1"
         />
         <meta
           property="og:description"
-          content="Today, we're excited to announce D1, Cloudflare's first SQL database, designed for Cloudflare Workers"
+          content="This is a demo of the Northwind dataset, running on Cloudflare Workers, and D1 - Cloudflare's newest SQL database, running on SQLite."
         />
         <meta
           property="og:url"
-          content="https://blog.cloudflare.com/introducing-d1/"
+          content="https://northwind.d1sql.com/"
         />
         <meta
           property="og:image"
-          content="http://blog.cloudflare.com/content/images/2022/05/image1-22.png"
+          content="https://imagedelivery.net/4wj01aQOZZ0hemsvbxWAvA/763bcbcd-da6d-46ec-f5e1-70c1c1a33d00/public"
         />
-        <meta property="article:tag" content="Platform Week" />
+        <meta property="article:tag" content="Developer Week" />
         <meta property="article:tag" content="Product News" />
         <meta property="article:tag" content="Developers" />
 
@@ -95,29 +93,21 @@ export default function App() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
-          content="Announcing D1: Our first SQL database"
+          content="Northind Traders, running on Cloudflare's D1"
         />
         <meta
           name="twitter:description"
-          content="Today, we're excited to announce D1, Cloudflare's first SQL database, designed for Cloudflare Workers"
+          content="This is a demo of the Northwind dataset, running on Cloudflare Workers, and D1 - Cloudflare's newest SQL database, running on SQLite."
         />
         <meta
           name="twitter:url"
-          content="https://blog.cloudflare.com/introducing-d1/"
+          content="https://northwind.d1sql.com"
         />
         <meta
           name="twitter:image"
-          content="http://blog.cloudflare.com/content/images/2022/05/image1-22.png"
-        />
-        <meta name="twitter:label1" content="Written by" />
-        <meta name="twitter:data1" content="Rita Kozlov" />
-        <meta name="twitter:label2" content="Filed under" />
-        <meta
-          name="twitter:data2"
-          content="Platform Week, Product News, Developers"
+          content="https://imagedelivery.net/4wj01aQOZZ0hemsvbxWAvA/763bcbcd-da6d-46ec-f5e1-70c1c1a33d00/public"
         />
         <meta name="twitter:site" content="@cloudflare" />
-        <meta name="twitter:creator" content="@ritakozlov_" />
         <meta property="og:image:width" content="1801" />
         <meta property="og:image:height" content="1013" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
