@@ -6,4 +6,4 @@ route = "api.northwind.d1sql.com/*"
 [[d1_databases]]
 binding = "DB"
 database_name = "northwind"
-database_id = "b15e4b35-5861-440b-b3c5-4af1d6180c64"
+database_id = "d5b1d127-1d3f-467e-953b-cbc69f0a9e06"
