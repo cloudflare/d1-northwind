@@ -92,7 +92,7 @@ const Customers = () => {
                         <div className="image">
                           <img
                             alt="Customer avatar"
-                            src={`https://avatars.dicebear.com/v2/initials/${
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${
                               customer.ContactName.split(" ")[0]
                             }-${
                               customer.ContactName.split(" ").slice(-1)[0]
