@@ -83,7 +83,7 @@ const Employees = () => {
                         <div className="image">
                           <img
                             alt="employee avatar"
-                            src={`https://avatars.dicebear.com/v2/initials/${employee.FirstName[0]}-${employee.LastName[0]}.svg`}
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${employee.FirstName[0]}-${employee.LastName[0]}.svg`}
                             className="rounded-full"
                           />
                         </div>
