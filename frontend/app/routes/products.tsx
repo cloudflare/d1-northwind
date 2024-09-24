@@ -40,7 +40,7 @@ const Products = () => {
   }, [dispatch, data.stats]);
 
   const setPage = (page: number) => {
-    navigate(`/customers?page=${page}`);
+    navigate(`/products?page=${page}`);
   };
 
   return (
