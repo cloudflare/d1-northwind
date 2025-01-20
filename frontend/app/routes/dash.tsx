@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStats } from "~/components/StatsContext";
+import { SQLRequestEvent } from "worker/lib/tools";
 
 interface Status {
   cf:
@@ -71,25 +72,53 @@ export default function Dash() {
         <p className="text-gray-800 text-xs">
           Explore the app and see metrics here
         </p>
-        {stats?.log?.map((log, index: number) => {
-          console.log(log);
-          if (log.type == "sql") {
-            return (
-              <div className="pt-2" key={index}>
-                <p className="text-gray-400 text-xs">
-                  {log.ts}, {log.served_by}, {log.duration}ms
-                </p>
-                {log.query.split("\n").map((l: string, index: number) => {
-                  return (
-                    <p key={index} className="text-sm font-mono break-all">
-                      {l}
-                    </p>
-                  );
-                })}
-              </div>
-            );
-          } else return null;
-        })}
+        <div className="mt-4">
+          {stats?.log?.map((log: SQLRequestEvent, index: number) => {
+            if (log.type === "sql") {
+              return (
+                <div
+                  className="pt-2 border-l-2 border-gray-200 pl-4 mb-4"
+                  key={index}
+                >
+                  <p className="text-gray-500 text-xs font-semibold">
+                    Request at {log.timestamp}
+                    <span className="ml-2 text-blue-600">
+                      Request duration: {log.overallTimeMs}ms
+                    </span>
+                  </p>
+                  <ul className="mt-2 space-y-2">
+                    {log.queries.map((query, queryIndex) => (
+                      <li
+                        key={queryIndex}
+                        className="bg-gray-50 rounded-md p-3"
+                      >
+                        <p className="text-gray-500 text-xs mb-1">
+                          Served by: {query.served_by}
+                          <span className="ml-2 text-blue-600">
+                            Query duration: {query.duration}ms
+                          </span>
+                        </p>
+                        <div className="bg-white rounded border border-gray-200 p-2">
+                          {query.query
+                            .split("\n")
+                            .map((line: string, lineIndex: number) => (
+                              <p
+                                key={lineIndex}
+                                className="text-sm font-mono break-all text-gray-700"
+                              >
+                                {line}
+                              </p>
+                            ))}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
       </div>
     </>
   );
