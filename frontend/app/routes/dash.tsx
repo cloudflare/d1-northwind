@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStats } from "~/components/StatsContext";
-import { SQLRequestEvent } from "worker/lib/tools";
+import type { SQLRequestEvent } from "worker/lib/tools";
 
 interface Status {
   cf:
