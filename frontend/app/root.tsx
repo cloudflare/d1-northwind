@@ -45,7 +45,9 @@ const statsReducer = (state: any, action: any) => {
   if (action.update) state.update += action.update;
   if (action.delete) state.delete += action.delete;
   if (action.insert) state.insert += action.insert;
-  if (action.log) state.log.push({ ...action.log });
+  // we want new logs to be at the top of the list
+  if (action.log) state.log.unshift({ ...action.log });
+
   return state;
 };
 
