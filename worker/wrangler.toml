@@ -3,6 +3,9 @@ main = "index.ts"
 name = "northwind-worker"
 route = "api.northwind.d1sql.com/*"
 
+[placement]
+mode = "smart"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "northwind"
