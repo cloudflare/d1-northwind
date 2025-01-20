@@ -21,7 +21,10 @@ const apiSearch = () => {
       );
 
       try {
+        const startTime = Date.now();
         const search = await (stmts[0] as D1PreparedStatement).all();
+        const overallTimeMs = Date.now() - startTime;
+
         return {
           items: itemsPerPage,
           stats: {
@@ -29,7 +32,8 @@ const apiSearch = () => {
             results: search.results ? search.results.length : 0,
             select_fts: 0,
             select_where: 1,
-            log: createSQLLog(sql, [search]),
+            overallTimeMs: overallTimeMs,
+            log: createSQLLog(sql, [search], overallTimeMs),
           },
           results: search.results,
         };

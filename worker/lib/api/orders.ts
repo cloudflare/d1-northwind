@@ -18,9 +18,12 @@ const apiOrders = () => {
         [[itemsPerPage, (page - 1) * itemsPerPage]]
       );
       try {
+        const startTime = Date.now();
         const response: D1Result<any>[] = await env.DB.batch(
           stmts as D1PreparedStatement[]
         );
+        const overallTimeMs = Date.now() - startTime;
+
         const first = response[0];
         const total =
           count && first.results ? (first.results[0] as any).total : 0;
@@ -36,7 +39,8 @@ const apiOrders = () => {
             queries: stmts.length,
             results: orders.length + (count ? 1 : 0),
             select: stmts.length,
-            log: createSQLLog(sql, response),
+            overallTimeMs: overallTimeMs,
+            log: createSQLLog(sql, response, overallTimeMs),
           },
           orders: orders,
         };
@@ -65,7 +69,10 @@ const apiOrder = () => {
       );
 
       try {
+        const startTime = Date.now();
         const response = await env.DB.batch(stmts as D1PreparedStatement[]);
+        const overallTimeMs = Date.now() - startTime;
+
         const orders: any = response[0].results;
         const products: any = response[1].results;
         return {
@@ -74,7 +81,8 @@ const apiOrder = () => {
             results: products.length + 1,
             select: stmts.length,
             select_where: stmts.length,
-            log: createSQLLog(sql, response),
+            overallTimeMs: overallTimeMs,
+            log: createSQLLog(sql, response, overallTimeMs),
           },
           order: orders ? orders[0] : {},
           products: products,

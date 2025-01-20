@@ -18,9 +18,11 @@ const apiSuppliers = () => {
         [[itemsPerPage, (page - 1) * itemsPerPage]]
       );
       try {
+        const startTime = Date.now();
         const response: D1Result<any>[] = await env.DB.batch(
           stmts as D1PreparedStatement[]
         );
+        const overallTimeMs = Date.now() - startTime;
         const first = response[0];
         const total =
           count && first.results ? (first.results[0] as any).total : 0;
@@ -36,7 +38,8 @@ const apiSuppliers = () => {
             queries: stmts.length,
             results: suppliers.length + (count ? 1 : 0),
             select: stmts.length,
-            log: createSQLLog(sql, response),
+            overallTimeMs: overallTimeMs,
+            log: createSQLLog(sql, response, overallTimeMs),
           },
           suppliers: suppliers,
         };
@@ -63,15 +66,18 @@ const apiSupplier = () => {
           ],
           [[id]]
         );
+        const startTime = Date.now();
         const supplier: D1Result<any> = await (
           stmts[0] as D1PreparedStatement
         ).all();
+        const overallTimeMs = Date.now() - startTime;
         return {
           stats: {
             queries: 1,
             results: 1,
             select: 1,
-            log: createSQLLog(sql, [supplier]),
+            overallTimeMs: overallTimeMs,
+            log: createSQLLog(sql, [supplier], overallTimeMs),
           },
           supplier: supplier.results ? supplier.results[0] : {},
         };
