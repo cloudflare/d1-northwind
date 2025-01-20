@@ -17,19 +17,36 @@ const mime_types = [
   },
 ];
 
-const createSQLLog = (statements: any, response: any) => {
-  let logs = [];
-  for (let l in response) {
-    logs.push({
-      type: "sql",
-      served_by: response[l].meta.served_by,
-      query: statements[l],
-      duration: response[l].meta.duration,
-      ts: new Date().toISOString(),
-    });
-  }
+interface SQLQueryLog {
+  query: string;
+  served_by: string;
+  duration: number;
+}
 
-  return logs;
+export interface SQLRequestEvent {
+  type: "sql";
+  timestamp: string;
+  queries: SQLQueryLog[];
+  overallTimeMs: number;
+}
+
+const createSQLLog = (
+  statements: string[],
+  response: any[],
+  overallTimeMs: number
+): SQLRequestEvent => {
+  const queries = response.map((res, index) => ({
+    query: statements[index],
+    served_by: res.meta.served_by,
+    duration: res.meta.duration,
+  }));
+
+  return {
+    type: "sql",
+    timestamp: new Date().toISOString(),
+    queries,
+    overallTimeMs,
+  };
 };
 
 const getMime = (file: string) => {
@@ -53,7 +70,7 @@ const prepareStatements = (
   countTable: string | false,
   query: Array<string>,
   values: Array<any[]>
-) => {
+): [D1PreparedStatement[], string[]] => {
   var stmts: D1PreparedStatement[] = [];
   var sql = [];
   if (countTable) {

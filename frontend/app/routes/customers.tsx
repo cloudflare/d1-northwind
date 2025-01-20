@@ -92,11 +92,9 @@ const Customers = () => {
                         <div className="image">
                           <img
                             alt="Customer avatar"
-                            src={`https://avatars.dicebear.com/v2/initials/${
+                            src={`https://api.dicebear.com/9.x/initials/svg?seed=${
                               customer.ContactName.split(" ")[0]
-                            }-${
-                              customer.ContactName.split(" ").slice(-1)[0]
-                            }.svg`}
+                            }-${customer.ContactName.split(" ").slice(-1)[0]}`}
                             className="rounded-full"
                           />
                         </div>

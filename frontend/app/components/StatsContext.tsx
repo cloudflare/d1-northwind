@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import type { SQLRequestEvent } from "../../../worker/lib/tools";
 
 export const StatsContext = createContext<typeof initialStats | null>(null);
 
@@ -16,13 +17,7 @@ export const initialStats = {
   update: 0,
   delete: 0,
   insert: 0,
-  log: [] as {
-    type: string;
-    query: string;
-    ts: string;
-    served_by: string;
-    duration: string;
-  }[],
+  log: [] as SQLRequestEvent[],
 };
 
 export function useStats() {
