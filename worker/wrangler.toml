@@ -1,6 +1,7 @@
-compatibility_date = "2022-04-05"
+compatibility_date = "2025-03-03"
 main = "index.ts"
 name = "northwind-worker"
+compatibility_flags = ["nodejs_compat", "enable_d1_with_sessions_api"]
 route = "api.northwind.d1sql.com/*"
 
 [placement]

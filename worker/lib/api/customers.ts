@@ -5,12 +5,13 @@ const apiCustomers = () => {
     path: "customers",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const count = searchParams.get("count");
       const page = parseInt(searchParams.get("page") as string) || 1;
       const itemsPerPage = 20;
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         count ? "Customer" : false,
         [
           "SELECT Id, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax FROM Customer LIMIT ?1 OFFSET ?2",
@@ -19,7 +20,8 @@ const apiCustomers = () => {
       );
       try {
         const startTime = Date.now();
-        const response: D1Result<any>[] = await env.DB.batch(
+
+        const response: D1Result<any>[] = await session.batch(
           stmts as D1PreparedStatement[]
         );
         const overallTimeMs = Date.now() - startTime;
@@ -55,10 +57,11 @@ const apiCustomer = () => {
     path: "customer",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const id = searchParams.get("Id");
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         false,
         [
           "SELECT Id, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax FROM Customer WHERE Id = ?1",

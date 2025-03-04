@@ -5,12 +5,13 @@ const apiSearch = () => {
     path: "search",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const q = searchParams.get("q");
       const table = searchParams.get("table");
       const itemsPerPage = 50;
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         false,
         [
           table == "products"

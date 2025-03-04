@@ -5,12 +5,13 @@ const apiSuppliers = () => {
     path: "suppliers",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const count = searchParams.get("count");
       const page = parseInt(searchParams.get("page") as string) || 1;
       const itemsPerPage = 20;
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         count ? "Supplier" : false,
         [
           "SELECT Id,CompanyName,ContactName,ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax, HomePage FROM Supplier LIMIT ?1 OFFSET ?2",
@@ -19,7 +20,7 @@ const apiSuppliers = () => {
       );
       try {
         const startTime = Date.now();
-        const response: D1Result<any>[] = await env.DB.batch(
+        const response: D1Result<any>[] = await session.batch(
           stmts as D1PreparedStatement[]
         );
         const overallTimeMs = Date.now() - startTime;
@@ -55,11 +56,12 @@ const apiSupplier = () => {
     path: "supplier",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const id = searchParams.get("Id");
       try {
         const [stmts, sql] = prepareStatements(
-          env.DB,
+          session,
           false,
           [
             "SELECT Id,CompanyName,ContactName,ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax, HomePage FROM Supplier WHERE Id = ?1",

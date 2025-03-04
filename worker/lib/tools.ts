@@ -66,7 +66,7 @@ const rand = (min = 1, max = 1000000) => {
 };
 
 const prepareStatements = (
-  db: D1Database,
+  session: D1DatabaseSession,
   countTable: string | false,
   query: Array<string>,
   values: Array<any[]>
@@ -75,11 +75,11 @@ const prepareStatements = (
   var sql = [];
   if (countTable) {
     const q = `SELECT COUNT(1) as total FROM ${countTable}`;
-    stmts.push(db.prepare(q));
+    stmts.push(session.prepare(q));
     sql.push(q);
   }
   for (let i in query) {
-    stmts.push(db.prepare(query[i]).bind(...values[i]));
+    stmts.push(session.prepare(query[i]).bind(...values[i]));
     sql.push(query[i]);
   }
   return [stmts, sql];

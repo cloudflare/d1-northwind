@@ -5,12 +5,13 @@ const apiEmployees = () => {
     path: "employees",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const count = searchParams.get("count");
       const page = parseInt(searchParams.get("page") as string) || 1;
       const itemsPerPage = 20;
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         count ? "Employee" : false,
         [
           "SELECT Id, LastName, FirstName, Title, TitleOfCourtesy, BirthDate, HireDate, Address, City, Region, PostalCode, Country, HomePhone, Extension, Photo, Notes, ReportsTo, PhotoPath FROM Employee LIMIT ?1 OFFSET ?2",
@@ -19,7 +20,7 @@ const apiEmployees = () => {
       );
       try {
         const startTime = Date.now();
-        const response: D1Result<any>[] = await env.DB.batch(
+        const response: D1Result<any>[] = await session.batch(
           stmts as D1PreparedStatement[]
         );
         const overallTimeMs = Date.now() - startTime;
@@ -56,10 +57,11 @@ const apiEmployee = () => {
     path: "employee",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const id = searchParams.get("Id");
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         false,
         [
           "SELECT Report.Id AS ReportId, Report.FirstName AS ReportFirstName, Report.LastName AS ReportLastName, Employee.Id, Employee.LastName, Employee.FirstName, Employee.Title, Employee.TitleOfCourtesy, Employee.BirthDate, Employee.HireDate, Employee.Address, Employee.City, Employee.Region, Employee.PostalCode, Employee.Country, Employee.HomePhone, Employee.Extension, Employee.Photo, Employee.Notes, Employee.ReportsTo, Employee.PhotoPath FROM Employee LEFT JOIN Employee AS Report ON Report.Id = Employee.ReportsTo WHERE Employee.Id = ?1",

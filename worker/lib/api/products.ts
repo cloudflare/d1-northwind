@@ -5,12 +5,13 @@ const apiProducts = () => {
     path: "products",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const count = searchParams.get("count");
       const page = parseInt(searchParams.get("page") as string) || 1;
       const itemsPerPage = 20;
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         count ? "Product" : false,
         [
           "SELECT Id, ProductName, SupplierId, CategoryId, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM Product LIMIT ?1 OFFSET ?2",
@@ -19,7 +20,7 @@ const apiProducts = () => {
       );
       try {
         const startTime = Date.now();
-        const response: D1Result<any>[] = await env.DB.batch(
+        const response: D1Result<any>[] = await session.batch(
           stmts as D1PreparedStatement[]
         );
         const overallTimeMs = Date.now() - startTime;
@@ -56,11 +57,12 @@ const apiProduct = () => {
     path: "product",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const id = searchParams.get("Id");
       try {
         const [stmts, sql] = prepareStatements(
-          env.DB,
+          session,
           false,
           [
             "SELECT Product.Id, ProductName, SupplierId, CategoryId, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued, Supplier.CompanyName AS SupplierName FROM Product, Supplier WHERE Product.Id = ?1 AND Supplier.Id=Product.SupplierId",

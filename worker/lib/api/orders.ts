@@ -5,12 +5,13 @@ const apiOrders = () => {
     path: "orders",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const count = searchParams.get("count");
       const page = parseInt(searchParams.get("page") as string) || 1;
       const itemsPerPage = 20;
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         count ? '"Order"' : false,
         [
           'SELECT SUM(OrderDetail.UnitPrice * OrderDetail.Discount * OrderDetail.Quantity) AS TotalProductsDiscount, SUM(OrderDetail.UnitPrice * OrderDetail.Quantity) AS TotalProductsPrice, SUM(OrderDetail.Quantity) AS TotalProductsItems, COUNT(OrderDetail.OrderId) AS TotalProducts, "Order".Id, CustomerId, EmployeeId, OrderDate, RequiredDate, ShippedDate, ShipVia, Freight, ShipName, ShipAddress, ShipCity, ShipRegion, ShipPostalCode, ShipCountry, ProductId FROM "Order", OrderDetail WHERE OrderDetail.OrderId = "Order".Id GROUP BY "Order".Id LIMIT ?1 OFFSET ?2',
@@ -19,7 +20,7 @@ const apiOrders = () => {
       );
       try {
         const startTime = Date.now();
-        const response: D1Result<any>[] = await env.DB.batch(
+        const response: D1Result<any>[] = await session.batch(
           stmts as D1PreparedStatement[]
         );
         const overallTimeMs = Date.now() - startTime;
@@ -56,10 +57,11 @@ const apiOrder = () => {
     path: "order",
     method: "GET",
     handler: async (request: Request, env: Env) => {
+      const session = env.DB.withSession("first-unconstrained");
       const { searchParams } = new URL(request.url);
       const id = searchParams.get("Id");
       const [stmts, sql] = prepareStatements(
-        env.DB,
+        session,
         false,
         [
           'SELECT Shipper.CompanyName AS ShipViaCompanyName, SUM(OrderDetail.UnitPrice * OrderDetail.Discount * OrderDetail.Quantity) AS TotalProductsDiscount, SUM(OrderDetail.UnitPrice * OrderDetail.Quantity) AS TotalProductsPrice, SUM(OrderDetail.Quantity) AS TotalProductsItems, COUNT(OrderDetail.OrderId) AS TotalProducts, "Order".Id, CustomerId, EmployeeId, OrderDate, RequiredDate, ShippedDate, ShipVia, Freight, ShipName, ShipAddress, ShipCity, ShipRegion, ShipPostalCode, ShipCountry, ProductId FROM "Order", OrderDetail, Shipper WHERE OrderDetail.OrderId = "Order".Id AND "Order".Id = ?1 AND "Order".ShipVia = Shipper.Id GROUP BY "Order".Id',
@@ -70,7 +72,9 @@ const apiOrder = () => {
 
       try {
         const startTime = Date.now();
-        const response = await env.DB.batch(stmts as D1PreparedStatement[]);
+        const response: D1Result<any>[] = await session.batch(
+          stmts as D1PreparedStatement[]
+        );
         const overallTimeMs = Date.now() - startTime;
 
         const orders: any = response[0].results;
