@@ -5,7 +5,11 @@ compatibility_flags = ["nodejs_compat", "enable_d1_with_sessions_api"]
 route = "api.northwind.d1sql.com/*"
 
 [placement]
-mode = "smart"
+mode = "off"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
 
 [[d1_databases]]
 binding = "DB"
