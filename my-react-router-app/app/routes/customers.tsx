@@ -15,13 +15,6 @@ interface Customer {
   Phone: string;
 }
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
-
 export async function loader({ context, request }: Route.LoaderArgs) {
   const session = context.cloudflare.env.DB.withSession("first-unconstrained");
   const { searchParams } = new URL(request.url);
