@@ -6,7 +6,7 @@ import { prepareStatements } from "~/lib/utils";
 import { useStatsDispatch } from "~/components/StatsContext";
 import { AddTableField } from "~/components";
 
-export async function loader({ context, request, params }: Route.LoaderArgs) {
+export async function loader({ context, params }: Route.LoaderArgs) {
   const session = context.cloudflare.env.DB.withSession("first-unconstrained");
 
   const { id } = params;

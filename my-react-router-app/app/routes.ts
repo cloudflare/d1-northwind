@@ -5,4 +5,6 @@ export default [
   route("/dash", "routes/dash.tsx"),
   route("/customers", "routes/customers.tsx"),
   route("/customer/:id", "routes/customer.$id.tsx"),
+  route("/employees", "routes/employees.tsx"),
+  route("/employee/:id", "routes/employee.$id.tsx"),
 ] satisfies RouteConfig;

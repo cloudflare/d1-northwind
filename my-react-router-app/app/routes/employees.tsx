@@ -2,18 +2,9 @@ import { Link, useNavigate } from "react-router";
 import { prepareStatements, createSQLLog } from "~/lib/utils";
 import { Paginate } from "~/components";
 
-import type { Route } from "./+types/customers";
-
-interface Customer {
-  Id: string;
-  CompanyName: string;
-  ContactName: string;
-  ContactTitle: string;
-  Address: string;
-  City: string;
-  Country: string;
-  Phone: string;
-}
+import type { Route } from "./+types/employees";
+import { useStatsDispatch } from "~/components/StatsContext";
+import { useEffect } from "react";
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const session = context.cloudflare.env.DB.withSession("first-unconstrained");
@@ -23,15 +14,15 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const itemsPerPage = 20;
   const [stmts, sql] = prepareStatements(
     session,
-    count ? "Customer" : false,
+    count ? "Employee" : false,
     [
-      "SELECT Id, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax FROM Customer LIMIT ?1 OFFSET ?2",
+      "SELECT Id, LastName, FirstName, Title, TitleOfCourtesy, BirthDate, HireDate, Address, City, Region, PostalCode, Country, HomePhone, Extension, Photo, Notes, ReportsTo, PhotoPath FROM Employee LIMIT ?1 OFFSET ?2",
     ],
     [[itemsPerPage, (page - 1) * itemsPerPage]]
   );
+
   try {
     const startTime = Date.now();
-
     const response: D1Result<any>[] = await session.batch(
       stmts as D1PreparedStatement[]
     );
@@ -39,9 +30,11 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
     const first = response[0];
     const total = count && first.results ? (first.results[0] as any).total : 0;
-    const customers: any = count
+
+    const employees: any = count
       ? response.slice(1)[0].results
       : response[0].results;
+
     return {
       page: page,
       pages: count ? Math.ceil(total / itemsPerPage) : 0,
@@ -49,31 +42,37 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       total: count ? total : 0,
       stats: {
         queries: stmts.length,
-        results: customers.length + (count ? 1 : 0),
+        results: employees.length + (count ? 1 : 0),
         select: stmts.length,
+        overallTimeMs: overallTimeMs,
         log: createSQLLog(sql, response, overallTimeMs),
       },
-      customers: customers,
+      employees: employees,
     };
   } catch (e: any) {
     return { error: 404, msg: e.toString() };
   }
 }
 
-export default function Customers({ loaderData }: Route.ComponentProps) {
-  const { customers, page, pages } = loaderData;
-
+export default function Employees({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
+  const { employees, page, pages, stats } = loaderData;
+  const dispatch = useStatsDispatch();
+
+  useEffect(() => {
+    dispatch && stats && dispatch(stats);
+  }, [dispatch, stats]);
+
   const setPage = (page: number) => {
-    navigate(`/customers?page=${page}`);
+    navigate(`/employees?page=${page}`);
   };
 
   return (
     <>
-      {customers.length ? (
+      {employees.length ? (
         <div className="card has-table">
           <header className="card-header">
-            <p className="card-header-title">Customers</p>
+            <p className="card-header-title">Employees</p>
             <button className="card-header-icon">
               <span
                 className="material-icons"
@@ -91,46 +90,44 @@ export default function Customers({ loaderData }: Route.ComponentProps) {
               <thead>
                 <tr>
                   <th></th>
-                  <th>Company</th>
-                  <th>Contact</th>
+                  <th>Name</th>
                   <th>Title</th>
                   <th>City</th>
+                  <th>Phone</th>
                   <th>Country</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {customers.map((customer: Customer, index: number) => {
+                {employees.map((employee: any, index: number) => {
                   return (
                     <tr key={index}>
                       <td className="image-cell">
                         <div className="image">
                           <img
-                            alt="Customer avatar"
-                            src={`https://api.dicebear.com/9.x/initials/svg?seed=${
-                              customer.ContactName.split(" ")[0]
-                            }-${customer.ContactName.split(" ").slice(-1)[0]}`}
+                            alt="employee avatar"
+                            src={`https://api.dicebear.com/9.x/initials/svg?seed=${employee.FirstName[0]}-${employee.LastName[0]}`}
                             className="rounded-full"
                           />
                         </div>
                       </td>
-                      <td data-label="Company">
-                        <Link className="link" to={`/customer/${customer.Id}`}>
-                          {customer.CompanyName}
-                        </Link>
+                      <td data-label="Name">
+                        <Link
+                          className="link"
+                          to={`/employee/${employee.Id}`}
+                        >{`${employee.FirstName} ${employee.LastName}`}</Link>
                       </td>
-                      <td data-label="Contact">{customer.ContactName}</td>
-                      <td data-label="Title">{customer.ContactTitle}</td>
-                      <td data-label="City">{customer.City}</td>
-                      <td data-label="Country">{customer.Country}</td>
+                      <td data-label="Title">{employee.Title}</td>
+                      <td data-label="City">{employee.City}</td>
+                      <td data-label="Phone">{employee.HomePhone}</td>
+                      <td data-label="Country">{employee.Country}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-            {pages && page && setPage && (
-              <Paginate pages={pages} page={page} setPage={setPage} />
-            )}
+
+            <Paginate pages={pages!} page={page!} setPage={setPage} />
           </div>
         </div>
       ) : (

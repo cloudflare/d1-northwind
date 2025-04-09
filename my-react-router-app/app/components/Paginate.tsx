@@ -60,9 +60,7 @@ export const Paginate = ({ page, pages, setPage }: PaginateProps) => {
               }
             })}
           </div>
-        ) : (
-          false
-        )}
+        ) : null}
         <small>
           Page {page} of {pages}
         </small>
