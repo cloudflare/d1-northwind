@@ -10,7 +10,7 @@ This repo has the code for https://northwind.d1sql.com/
 - [Typescript](https://www.typescriptlang.org/) for better Javascript
 - [Tailwind CSS](https://tailwindcss.com/) for the UI
 - [React](https://reactjs.org/) for DOM interaction
-- [Remix](https://remix.run/docs/en/main/) for the React framework
+- [React Router v7](https://reactrouter.com/home) for the React framework
 
 ## Get the demo running
 
@@ -27,9 +27,11 @@ Requirements:
 git clone https://github.com/cloudflare/d1-northwind
 ```
 
-Note that this repository uses [npm workspaces](https://docs.npmjs.com/cli/v9/using-npm/workspaces?v=true) to manage dependencies. You can run either Worker's npm commands from the root of the repo by adding either `-w frontend` or `-w worker` to your npm command.
-
 ### Install packages
+
+```
+cd src
+```
 
 ```
 npm install
@@ -38,65 +40,60 @@ npm install
 ### Creating the database
 
 ```
-npm run db:new
+npm run remote:new
 ```
 
-Get the output database id and add it to worker/wrangler.toml
+Get the output database id and add it to worker/wrangler.jsonc
 
 ```
-[[d1_databases]]
-binding = "DB"
-database_name = "northwind"
-database_id = "..."
+"d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "northwind",
+      "database_id": "..."
+    }
+  ]
 ```
 
 ### Importing the database
 
 ```
-npm run db:init
-npm run db:load
+npm run remote:init
+npm run remote:load
 ```
 
 ## React application
 
-Northwind is a React/Remix/Tailwind CSS application. The source code is in the [app folder](./frontend) folder.
+Northwind is a React application. The source code is in the [app folder](./src) folder.
 
 To build a new version run:
 
 ```
-npm run build -w frontend
+npm run build
 ```
 
 To run the dev server, run:
 
 ```
-npm run dev -w frontend
+npm run dev
 ```
-
-## Worker backend
-
-Worker serves the Database API endpoints. The source code is in the [worker](./worker) folder.
 
 ## Local development
 
-Wrangler D1 has support for local development:
+This project supports local development:
 
 ```
 npm run local:init -w worker
 npm run local:load -w worker
-npm run dev -w worker
+npm run dev
 ```
 
-This will start the Worker at `http://127.0.0.1:8787` with the database loaded with data. At this point you can start the frontend in a separate terminal window:
-
-```
-npm run dev -w frontend
-```
+This will start the application at `http://127.0.0.1:5173` with the database loaded with data.
 
 Wrangler will persist a local SQLite compatible sql file which you can access to with other clients:
 
 ```
-sqlite3 worker/.wrangler/state/v3/d1/*/db.sqlite
+sqlite3 src/.wrangler/state/v3/d1/*/db.sqlite
 .tables
 ```
 
@@ -105,6 +102,5 @@ sqlite3 worker/.wrangler/state/v3/d1/*/db.sqlite
 Deploy to production when you're done.
 
 ```
-npm run deploy -w worker
-npm run deploy -w frontend
+npm run deploy
 ```

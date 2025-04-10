@@ -1,18 +1,15 @@
 {
-    "compilerOptions": {
-        "target": "esnext",
-        "lib": ["esnext"],
-        "alwaysStrict": true,
-        "strict": true,
-        "noEmitOnError": true,
-        "moduleResolution": "node",
-        "experimentalDecorators": true,
-        "outDir": "tscOutDir",
-        "preserveConstEnums": true,
-        "esModuleInterop": true,
-        "types": ["@cloudflare/workers-types"]
-    },
-    "include": ["worker"],
-    "exclude": ["node_modules", "dist"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.cloudflare.json" }
+  ],
+  "compilerOptions": {
+    "checkJs": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["@cloudflare/workers-types"]
+  }
 }
-
