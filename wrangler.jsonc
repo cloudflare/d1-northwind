@@ -8,7 +8,11 @@
   "compatibility_date": "2025-04-04",
   "main": "./workers/app.ts",
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "logs": {
+      "invocation_logs": false,
+      "head_sampling_rate": 1
+    }
   },
   "placement": { "mode": "off" },
   "d1_databases": [

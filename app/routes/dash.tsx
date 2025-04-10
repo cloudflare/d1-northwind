@@ -2,9 +2,9 @@ import type { SQLRequestEvent } from "~/lib/utils";
 import type { Route } from "./+types/dash";
 import { useStats } from "~/components/StatsContext";
 
-export function loader({ context, request }: Route.LoaderArgs) {
+export function loader({ context }: Route.LoaderArgs) {
   return {
-    cf: request.cf,
+    cf: context.cloudflare.cf,
   };
 }
 

@@ -5,6 +5,8 @@ declare module "react-router" {
     cloudflare: {
       env: Env;
       ctx: ExecutionContext;
+      //TODO: type me
+      cf: any;
     };
   }
 }
@@ -17,7 +19,7 @@ const requestHandler = createRequestHandler(
 export default {
   async fetch(request, env, ctx) {
     return requestHandler(request, {
-      cloudflare: { env, ctx },
+      cloudflare: { env, ctx, cf: request.cf },
     });
   },
 } satisfies ExportedHandler<Env>;
