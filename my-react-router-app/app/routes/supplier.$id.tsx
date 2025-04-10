@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import type { Route } from "./+types/customer.$id";
+import type { Route } from "./+types/supplier.$id";
 import { createSQLLog } from "~/lib/utils";
 import { prepareStatements } from "~/lib/utils";
 import { useStatsDispatch } from "~/components/StatsContext";
@@ -14,13 +14,13 @@ export async function loader({ context, params }: Route.LoaderArgs) {
     session,
     false,
     [
-      "SELECT Id, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax FROM Customer WHERE Id = ?1",
+      "SELECT Id,CompanyName,ContactName,ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax, HomePage FROM Supplier WHERE Id = ?1",
     ],
     [[id]]
   );
   try {
     const startTime = Date.now();
-    const customer: any = await (stmts[0] as D1PreparedStatement).all();
+    const supplier: any = await (stmts[0] as D1PreparedStatement).all();
     const overallTimeMs = Date.now() - startTime;
 
     return {
@@ -29,19 +29,19 @@ export async function loader({ context, params }: Route.LoaderArgs) {
         results: 1,
         select: 1,
         overallTimeMs: overallTimeMs,
-        log: createSQLLog(sql, [customer], overallTimeMs),
+        log: createSQLLog(sql, [supplier], overallTimeMs),
       },
-      customer: customer.results[0],
+      supplier: supplier.results[0],
     };
   } catch (e: any) {
     return { error: 404, msg: e.toString() };
   }
 }
 
-export default function Customer({ loaderData }: Route.ComponentProps) {
+export default function Supplier({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
-  const { customer, stats } = loaderData;
+  const { supplier, stats } = loaderData;
 
   const dispatch = useStatsDispatch();
   useEffect(() => {
@@ -50,12 +50,12 @@ export default function Customer({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      {customer ? (
+      {supplier ? (
         <div className="card mb-6">
           <header className="card-header">
             <p className="card-header-title">
               <span className="icon material-icons">ballot</span>
-              <span className="ml-2">Customer information</span>
+              <span className="ml-2">Supplier information</span>
             </p>
           </header>
           <div className="card-content">
@@ -63,41 +63,45 @@ export default function Customer({ loaderData }: Route.ComponentProps) {
               <div>
                 <AddTableField
                   name="Company Name"
-                  value={customer.CompanyName}
+                  value={supplier.CompanyName}
                 />
                 <AddTableField
                   name="Contact Name"
-                  value={customer.ContactName}
+                  value={supplier.ContactName}
                 />
                 <AddTableField
                   name="Contact Title"
-                  value={customer.ContactTitle}
+                  value={supplier.ContactTitle}
                 />
-                <AddTableField name="Address" value={customer.Address} />
-                <AddTableField name="City" value={customer.City} />
+                <AddTableField name="Address" value={supplier.Address} />
+                <AddTableField name="City" value={supplier.City} />
               </div>
               <div>
-                <AddTableField name="Postal Code" value={customer.PostalCode} />
-                <AddTableField name="Region" value={customer.Region} />
-                <AddTableField name="Country" value={customer.Country} />
-                <AddTableField name="Phone" value={customer.Phone} />
-                <AddTableField name="Fax" value={customer.Fax} />
-                {customer.HomePage ? (
-                  <AddTableField name="HomePage" value={customer.HomePage} />
+                <AddTableField name="Region" value={supplier.Region} />
+                <AddTableField name="Postal Code" value={supplier.PostalCode} />
+                <AddTableField name="Country" value={supplier.Country} />
+                <AddTableField name="Phone" value={supplier.Phone} />
+                {supplier.Fax ? (
+                  <AddTableField name="Fax" value={supplier.Fax} />
+                ) : (
+                  false
+                )}
+                {supplier.HomePage ? (
+                  <AddTableField name="Home Page" value={supplier.HomePage} />
                 ) : (
                   false
                 )}
               </div>
             </div>
 
-            <hr className="text-gray-200" />
+            <hr />
 
             <div className="field grouped">
               <div className="control">
                 <button
                   type="reset"
                   onClick={() => {
-                    navigate(`/customers`, { replace: false });
+                    navigate(`/suppliers`, { replace: false });
                   }}
                   className="button red"
                 >
@@ -109,7 +113,7 @@ export default function Customer({ loaderData }: Route.ComponentProps) {
         </div>
       ) : (
         <div className="card-content">
-          <h2>No such customer</h2>
+          <h2>No such supplier</h2>
         </div>
       )}
     </>
