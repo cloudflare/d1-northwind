@@ -30,10 +30,6 @@ git clone https://github.com/cloudflare/d1-northwind
 ### Install packages
 
 ```
-cd src
-```
-
-```
 npm install
 ```
 
