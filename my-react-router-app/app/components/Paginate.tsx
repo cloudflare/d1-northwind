@@ -55,7 +55,11 @@ export const Paginate = ({ page, pages, setPage }: PaginateProps) => {
                   );
                 } else {
                   if (index + 1 == pages - 3)
-                    return <button type="button">...</button>;
+                    return (
+                      <button type="button" key={index}>
+                        ...
+                      </button>
+                    );
                 }
               }
             })}
