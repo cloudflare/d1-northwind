@@ -24,7 +24,7 @@
     "react-router-dom": "^7.5.0"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.0.3",
+    "@cloudflare/vite-plugin": "^1.6.0",
     "@cloudflare/workers-types": "^4.20250409.0",
     "@react-router/dev": "^7.5.0",
     "@tailwindcss/vite": "^4.1.3",
