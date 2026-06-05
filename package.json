@@ -17,13 +17,13 @@
     "remote:load": "wrangler d1 execute northwind --remote --file=./db/data-big.sql"
   },
   "dependencies": {
+  },
+  "devDependencies": {
     "isbot": "^5.1.17",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.5.0",
-    "react-router-dom": "^7.5.0"
-  },
-  "devDependencies": {
+    "react-router-dom": "^7.5.0",
     "@cloudflare/vite-plugin": "^1.0.3",
     "@cloudflare/workers-types": "^4.20250409.0",
     "@react-router/dev": "^7.5.0",
