@@ -1,0 +1,101 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Paginate from "../components/Paginate";
+import StatsTracker from "../components/StatsTracker";
+import { getSession } from "../lib/db";
+import { prepareStatements, createSQLLog } from "../lib/utils";
+
+const session = getSession();
+const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
+const itemsPerPage = 20;
+
+const [stmts, sql] = prepareStatements(
+  session,
+  '"Order"',
+  [
+    'SELECT SUM(od.UnitPrice * od.Discount * od.Quantity) AS TotalProductsDiscount, SUM(od.UnitPrice * od.Quantity) AS TotalProductsPrice, SUM(od.Quantity) AS TotalProductsItems, COUNT(od.OrderId) AS TotalProducts, o.Id, o.CustomerId, o.EmployeeId, o.OrderDate, o.RequiredDate, o.ShippedDate, o.ShipVia, o.Freight, o.ShipName, o.ShipAddress, o.ShipCity, o.ShipRegion, o.ShipPostalCode, o.ShipCountry FROM (SELECT * FROM "Order" ORDER BY Id LIMIT ?1 OFFSET ?2) o LEFT JOIN OrderDetail od ON od.OrderId = o.Id GROUP BY o.Id ORDER BY o.Id',
+  ],
+  [[itemsPerPage, (page - 1) * itemsPerPage]],
+);
+
+let orders: any[] = [];
+let total = 0;
+let stats: any;
+let error: string | undefined;
+let msg: string | undefined;
+
+try {
+  const startTime = Date.now();
+  const response = await session.batch(stmts);
+  const overallTimeMs = Date.now() - startTime;
+
+  total = (response[0].results?.[0] as any)?.total ?? 0;
+  orders = (response.slice(1)[0].results ?? []) as any[];
+
+  stats = {
+    queries: stmts.length,
+    results: orders.length + 1,
+    select: stmts.length,
+    log: createSQLLog(sql, response, overallTimeMs),
+  };
+} catch (e: any) {
+  error = "404";
+  msg = e.toString();
+}
+
+const pages = Math.ceil(total / itemsPerPage);
+---
+
+<Layout>
+  {orders.length ? (
+    <div class="card has-table">
+      <header class="card-header">
+        <p class="card-header-title">Orders</p>
+        <a class="card-header-icon" href={`${Astro.url.pathname}${Astro.url.search}`}>
+          <span class="material-icons">redo</span>
+        </a>
+      </header>
+      <div class="card-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Total Price</th>
+              <th>Products</th>
+              <th>Quantity</th>
+              <th>Shipped</th>
+              <th>Ship Name</th>
+              <th>City</th>
+              <th>Country</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order: any) => (
+              <tr>
+                <td data-label="Id">
+                  <a class="link" href={`/order/${order.Id}`}>
+                    {order.Id}
+                  </a>
+                </td>
+                <td data-label="Price">{`$${parseFloat(order.TotalProductsPrice).toFixed(2)}`}</td>
+                <td data-label="Products">{order.TotalProducts}</td>
+                <td data-label="Quantity">{order.TotalProductsItems}</td>
+                <td data-label="Date">{order.OrderDate}</td>
+                <td data-label="Name">{order.ShipName}</td>
+                <td data-label="City">{order.ShipCity}</td>
+                <td data-label="Country">{order.ShipCountry}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Paginate pages={pages} page={page} base="/orders" />
+      </div>
+    </div>
+  ) : (
+    <div class="card-content">
+      {error ? <h2>{msg}</h2> : <h2>Loading orders...</h2>}
+    </div>
+  )}
+  {stats && <StatsTracker stats={stats} client:load />}
+</Layout>

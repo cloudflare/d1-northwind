@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Dashboard from "../components/Dashboard";
+
+const cf = (Astro.request as any).cf;
+const cfData = cf ? { colo: cf.colo as string, country: cf.country as string } : undefined;
+---
+
+<Layout>
+  <Dashboard cf={cfData} client:load />
+</Layout>

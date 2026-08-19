@@ -1,0 +1,83 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Paginate from "../components/Paginate";
+import StatsTracker from "../components/StatsTracker";
+import { getSession } from "../lib/db";
+import { prepareStatements, createSQLLog } from "../lib/utils";
+
+const session = getSession();
+const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
+const itemsPerPage = 20;
+
+const [stmts, sql] = prepareStatements(
+  session,
+  "Product",
+  [
+    "SELECT Id, ProductName, SupplierId, CategoryId, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM Product LIMIT ?1 OFFSET ?2",
+  ],
+  [[itemsPerPage, (page - 1) * itemsPerPage]],
+);
+
+const startTime = Date.now();
+const response = await session.batch(stmts);
+const overallTimeMs = Date.now() - startTime;
+
+const total = (response[0].results?.[0] as any)?.total ?? 0;
+const products = (response.slice(1)[0].results ?? []) as any[];
+const pages = Math.ceil(total / itemsPerPage);
+
+const stats = {
+  queries: stmts.length,
+  results: products.length + 1,
+  select: stmts.length,
+  log: createSQLLog(sql, response, overallTimeMs),
+};
+---
+
+<Layout>
+  {products.length ? (
+    <div class="card has-table">
+      <header class="card-header">
+        <p class="card-header-title">Products</p>
+        <a class="card-header-icon" href={`${Astro.url.pathname}${Astro.url.search}`}>
+          <span class="material-icons">redo</span>
+        </a>
+      </header>
+      <div class="card-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Qt per unit</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Orders</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product: any) => (
+              <tr>
+                <td data-label="Product">
+                  <a class="link" href={`/product/${product.Id}`}>
+                    {product.ProductName}
+                  </a>
+                </td>
+                <td data-label="Qpu">{product.QuantityPerUnit}</td>
+                <td data-label="Price">${product.UnitPrice}</td>
+                <td data-label="Stock">{product.UnitsInStock}</td>
+                <td data-label="Orders">{product.UnitsOnOrder}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Paginate pages={pages} page={page} base="/products" />
+      </div>
+    </div>
+  ) : (
+    <div class="card-content">
+      <h2>Loading products...</h2>
+    </div>
+  )}
+  <StatsTracker stats={stats} client:load />
+</Layout>

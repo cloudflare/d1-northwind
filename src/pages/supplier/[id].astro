@@ -1,0 +1,79 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import StatsTracker from "../../components/StatsTracker";
+import AddTableField from "../../components/AddTableField";
+import { getSession } from "../../lib/db";
+import { prepareStatements, createSQLLog } from "../../lib/utils";
+
+const session = getSession();
+const { id } = Astro.params;
+
+const [stmts, sql] = prepareStatements(
+  session,
+  false,
+  [
+    "SELECT Id,CompanyName,ContactName,ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax, HomePage FROM Supplier WHERE Id = ?1",
+  ],
+  [[id]],
+);
+
+const startTime = Date.now();
+const result = await stmts[0].all();
+const overallTimeMs = Date.now() - startTime;
+
+const supplier = (result.results[0] ?? null) as any;
+
+const stats = {
+  queries: 1,
+  results: 1,
+  select: 1,
+  log: createSQLLog(sql, [result], overallTimeMs),
+};
+---
+
+<Layout>
+  {supplier ? (
+    <div class="card mb-6">
+      <header class="card-header">
+        <p class="card-header-title">
+          <span class="icon material-icons">ballot</span>
+          <span class="ml-2">Supplier information</span>
+        </p>
+      </header>
+      <div class="card-content">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <AddTableField name="Company Name" value={supplier.CompanyName} />
+            <AddTableField name="Contact Name" value={supplier.ContactName} />
+            <AddTableField name="Contact Title" value={supplier.ContactTitle} />
+            <AddTableField name="Address" value={supplier.Address} />
+            <AddTableField name="City" value={supplier.City} />
+          </div>
+          <div>
+            <AddTableField name="Region" value={supplier.Region} />
+            <AddTableField name="Postal Code" value={supplier.PostalCode} />
+            <AddTableField name="Country" value={supplier.Country} />
+            <AddTableField name="Phone" value={supplier.Phone} />
+            {supplier.Fax ? <AddTableField name="Fax" value={supplier.Fax} /> : null}
+            {supplier.HomePage ? (
+              <AddTableField name="Home Page" value={supplier.HomePage} />
+            ) : null}
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="field grouped">
+          <div class="control">
+            <a href="/suppliers" class="button red">Go back</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div class="card-content">
+      <h2>No such supplier</h2>
+    </div>
+  )}
+  <StatsTracker stats={stats} client:load />
+</Layout>

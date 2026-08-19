@@ -2,12 +2,11 @@
 /node_modules/
 *.tsbuildinfo
 
-# React Router
-/.react-router/
-/build/
+# Astro
+/dist/
+.astro/
 
 # Cloudflare
 .mf
 .wrangler
 .dev.vars*
-

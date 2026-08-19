@@ -9,8 +9,8 @@ This repo has the code for https://northwind.d1sql.com/
 - [Wrangler](https://github.com/cloudflare/wrangler2) for building
 - [Typescript](https://www.typescriptlang.org/) for better Javascript
 - [Tailwind CSS](https://tailwindcss.com/) for the UI
-- [React](https://reactjs.org/) for DOM interaction
-- [React Router v7](https://reactrouter.com/home) for the React framework
+- [Astro](https://astro.build/) for the framework
+- [React](https://reactjs.org/) for interactive components
 
 ## Get the demo running
 
@@ -19,7 +19,7 @@ Requirements:
 - You need a Cloudflare Account
 - You need to get D1 [enabled](https://www.cloudflare.com/en-gb/lp/d1/) for your account
 - Please join our [developers Discord](https://discord.com/invite/cloudflaredev)
-- Please install [nodejs](https://github.com/nvm-sh/nvm) (we're using v18.8.0), npm and [npx](https://www.npmjs.com/package/npx)
+- Please install [nodejs](https://github.com/nvm-sh/nvm), npm and [npx](https://www.npmjs.com/package/npx)
 
 ### Clone this repo
 
@@ -39,7 +39,7 @@ npm install
 npm run remote:new
 ```
 
-Get the output database id and add it to worker/wrangler.jsonc
+Get the output database id and add it to `wrangler.jsonc`
 
 ```
 "d1_databases": [
@@ -58,9 +58,10 @@ npm run remote:init
 npm run remote:load
 ```
 
-## React application
+## Astro application
 
-Northwind is a React application. The source code is in the [app folder](./src) folder.
+Northwind is an Astro application with React components. The source code is in
+the [`src`](./src) folder.
 
 To build a new version run:
 
@@ -84,14 +85,7 @@ npm run local:load
 npm run dev
 ```
 
-This will start the application at `http://127.0.0.1:5173` with the database loaded with data.
-
-Wrangler will persist a local SQLite compatible sql file which you can access to with other clients:
-
-```
-sqlite3 src/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/<uid>.sqlite
-.tables
-```
+This will start the application at `http://localhost:4321` with the database loaded with data.
 
 ## Deploying
 
