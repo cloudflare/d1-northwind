@@ -27,7 +27,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     session,
     count ? '"Order"' : false,
     [
-      'SELECT SUM(OrderDetail.UnitPrice * OrderDetail.Discount * OrderDetail.Quantity) AS TotalProductsDiscount, SUM(OrderDetail.UnitPrice * OrderDetail.Quantity) AS TotalProductsPrice, SUM(OrderDetail.Quantity) AS TotalProductsItems, COUNT(OrderDetail.OrderId) AS TotalProducts, "Order".Id, CustomerId, EmployeeId, OrderDate, RequiredDate, ShippedDate, ShipVia, Freight, ShipName, ShipAddress, ShipCity, ShipRegion, ShipPostalCode, ShipCountry, ProductId FROM "Order", OrderDetail WHERE OrderDetail.OrderId = "Order".Id GROUP BY "Order".Id LIMIT ?1 OFFSET ?2',
+      'SELECT SUM(od.UnitPrice * od.Discount * od.Quantity) AS TotalProductsDiscount, SUM(od.UnitPrice * od.Quantity) AS TotalProductsPrice, SUM(od.Quantity) AS TotalProductsItems, COUNT(od.OrderId) AS TotalProducts, o.Id, o.CustomerId, o.EmployeeId, o.OrderDate, o.RequiredDate, o.ShippedDate, o.ShipVia, o.Freight, o.ShipName, o.ShipAddress, o.ShipCity, o.ShipRegion, o.ShipPostalCode, o.ShipCountry FROM (SELECT * FROM "Order" ORDER BY Id LIMIT ?1 OFFSET ?2) o LEFT JOIN OrderDetail od ON od.OrderId = o.Id GROUP BY o.Id ORDER BY o.Id',
     ],
     [[itemsPerPage, (page - 1) * itemsPerPage]]
   );
@@ -61,14 +61,22 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       orders: orders,
     };
   } catch (e: any) {
-    return { error: 404, msg: e.toString() };
+    return {
+      error: 404,
+      msg: e.toString(),
+      orders: [],
+      page,
+      pages: 0,
+      items: itemsPerPage,
+      total: 0,
+    };
   }
 }
 
 export default function Orders({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   console.log({ loaderData });
-  const { orders, page, pages, stats } = loaderData;
+  const { orders, page, pages, stats, error, msg } = loaderData as any;
   const dispatch = useStatsDispatch();
 
   useEffect(() => {
@@ -81,7 +89,7 @@ export default function Orders({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      {orders.length ? (
+      {orders?.length ? (
         <div className="card has-table">
           <header className="card-header">
             <p className="card-header-title">Orders</p>
@@ -140,7 +148,11 @@ export default function Orders({ loaderData }: Route.ComponentProps) {
         </div>
       ) : (
         <div className="card-content">
-          <h2>Loading orders...</h2>
+          {error ? (
+            <h2>{msg}</h2>
+          ) : (
+            <h2>Loading orders...</h2>
+          )}
         </div>
       )}
     </>

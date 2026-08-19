@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Nav = () => {
-  const clock = new Date().toLocaleTimeString();
+  const [clock, setClock] = useState("");
   const [subMenu, setSubMenu] = useState(false);
+
+  useEffect(() => {
+    setClock(new Date().toLocaleTimeString());
+    const id = setInterval(() => {
+      setClock(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <>
@@ -11,7 +19,7 @@ export const Nav = () => {
           <button
             onClick={() => {
               document.documentElement.classList.toggle(
-                "aside-mobile-expanded"
+                "aside-mobile-expanded",
               );
             }}
             className="mobile-aside-button navbar-item"
