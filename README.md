@@ -79,8 +79,8 @@ npm run dev
 This project supports local development:
 
 ```
-npm run local:init -w worker
-npm run local:load -w worker
+npm run local:init
+npm run local:load
 npm run dev
 ```
 
@@ -89,7 +89,7 @@ This will start the application at `http://127.0.0.1:5173` with the database loa
 Wrangler will persist a local SQLite compatible sql file which you can access to with other clients:
 
 ```
-sqlite3 src/.wrangler/state/v3/d1/*/db.sqlite
+sqlite3 src/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/<uid>.sqlite
 .tables
 ```
 
