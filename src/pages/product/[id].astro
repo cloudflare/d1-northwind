@@ -4,6 +4,7 @@ import StatsTracker from "../../components/StatsTracker";
 import AddTableField from "../../components/AddTableField";
 import { getSession } from "../../lib/db";
 import { prepareStatements, createSQLLog } from "../../lib/utils";
+import { LayerCard, LinkButton, Text } from "@cloudflare/kumo";
 
 const session = getSession();
 const { id } = Astro.params;
@@ -33,50 +34,37 @@ const stats = {
 
 <Layout>
   {product ? (
-    <div class="card mb-6">
-      <header class="card-header">
-        <p class="card-header-title">
-          <span class="icon material-icons">ballot</span>
-          <span class="ml-2">Product information</span>
-        </p>
-      </header>
-
-      <div class="card-content">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <AddTableField name="Product Name" value={product.ProductName} />
-            <AddTableField
-              name="Supplier"
-              link={`/supplier/${product.SupplierId}`}
-              value={product.SupplierName}
-            />
-            <AddTableField
-              name="Quantity Per Unit"
-              value={product.QuantityPerUnit}
-            />
-            <AddTableField name="Unit Price" value={`$${product.UnitPrice}`} />
-          </div>
-          <div>
-            <AddTableField name="Units In Stock" value={product.UnitsInStock} />
-            <AddTableField name="Units In Order" value={product.UnitsOnOrder} />
-            <AddTableField name="Reorder Level" value={product.ReorderLevel} />
-            <AddTableField name="Discontinued" value={product.Discontinued} />
-          </div>
+    <LayerCard className="p-6">
+      <Text variant="heading3" as="h2">Product information</Text>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+        <div>
+          <AddTableField name="Product Name" value={product.ProductName} />
+          <AddTableField
+            name="Supplier"
+            link={`/supplier/${product.SupplierId}`}
+            value={product.SupplierName}
+          />
+          <AddTableField
+            name="Quantity Per Unit"
+            value={product.QuantityPerUnit}
+          />
+          <AddTableField name="Unit Price" value={`$${product.UnitPrice}`} />
         </div>
-
-        <hr />
-
-        <div class="field grouped">
-          <div class="control">
-            <a href="/products" class="button red">Go back</a>
-          </div>
+        <div>
+          <AddTableField name="Units In Stock" value={product.UnitsInStock} />
+          <AddTableField name="Units In Order" value={product.UnitsOnOrder} />
+          <AddTableField name="Reorder Level" value={product.ReorderLevel} />
+          <AddTableField name="Discontinued" value={product.Discontinued} />
         </div>
       </div>
-    </div>
+      <div class="mt-6">
+        <LinkButton href="/products" variant="secondary">Go back</LinkButton>
+      </div>
+    </LayerCard>
   ) : (
-    <div class="card-content">
-      <h2>No such product</h2>
-    </div>
+    <LayerCard className="p-6">
+      <Text variant="secondary">No such product</Text>
+    </LayerCard>
   )}
   <StatsTracker stats={stats} client:load />
 </Layout>

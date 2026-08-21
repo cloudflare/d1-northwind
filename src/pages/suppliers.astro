@@ -4,6 +4,8 @@ import Paginate from "../components/Paginate";
 import StatsTracker from "../components/StatsTracker";
 import { getSession } from "../lib/db";
 import { prepareStatements, createSQLLog } from "../lib/utils";
+import { LayerCard, Link, LinkButton, Table, Text } from "@cloudflare/kumo";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
 const session = getSession();
 const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
@@ -32,61 +34,74 @@ const stats = {
   select: stmts.length,
   log: createSQLLog(sql, response, overallTimeMs),
 };
+
+const currentUrl = `${Astro.url.pathname}${Astro.url.search}`;
 ---
 
 <Layout>
   {suppliers.length ? (
-    <div class="card has-table">
-      <header class="card-header">
-        <p class="card-header-title">Suppliers</p>
-        <a class="card-header-icon" href={`${Astro.url.pathname}${Astro.url.search}`}>
-          <span class="material-icons">redo</span>
-        </a>
-      </header>
-      <div class="card-content">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Company</th>
-              <th>Contact</th>
-              <th>Title</th>
-              <th>City</th>
-              <th>Country</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
+    <LayerCard className="p-0">
+      <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
+        <Text variant="heading3" as="h2">Suppliers</Text>
+        <LinkButton
+          href={currentUrl}
+          variant="ghost"
+          size="sm"
+          shape="square"
+          aria-label="Refresh"
+        >
+          <ArrowClockwiseIcon size={16} />
+        </LinkButton>
+      </div>
+      <div class="overflow-x-auto">
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head></Table.Head>
+              <Table.Head>Company</Table.Head>
+              <Table.Head>Contact</Table.Head>
+              <Table.Head>Title</Table.Head>
+              <Table.Head>City</Table.Head>
+              <Table.Head>Country</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {suppliers.map((supplier: any) => {
               const avatar = `https://api.dicebear.com/9.x/initials/svg?seed=${supplier.ContactName.split(" ")[0]}-${supplier.ContactName.split(" ").slice(-1)[0]}`;
               return (
-                <tr>
-                  <td class="image-cell">
-                    <div class="image">
-                      <img alt="supplier" src={avatar} class="rounded-full" />
-                    </div>
-                  </td>
-                  <td data-label="Company">
-                    <a class="link" href={`/supplier/${supplier.Id}`}>
+                <Table.Row>
+                  <Table.Cell className="w-12">
+                    <img
+                      src={avatar}
+                      alt="supplier"
+                      width={32}
+                      height={32}
+                      loading="lazy"
+                      decoding="async"
+                      class="rounded-full"
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Link href={`/supplier/${supplier.Id}`}>
                       {supplier.CompanyName}
-                    </a>
-                  </td>
-                  <td data-label="Contact">{supplier.ContactName}</td>
-                  <td data-label="Title">{supplier.ContactTitle}</td>
-                  <td data-label="City">{supplier.City}</td>
-                  <td data-label="Country">{supplier.Country}</td>
-                </tr>
+                    </Link>
+                  </Table.Cell>
+                  <Table.Cell>{supplier.ContactName}</Table.Cell>
+                  <Table.Cell>{supplier.ContactTitle}</Table.Cell>
+                  <Table.Cell>{supplier.City}</Table.Cell>
+                  <Table.Cell>{supplier.Country}</Table.Cell>
+                </Table.Row>
               );
             })}
-          </tbody>
-        </table>
-        <Paginate pages={pages} page={page} base="/suppliers" />
+          </Table.Body>
+        </Table>
       </div>
-    </div>
+      <Paginate page={page} pages={pages} base="/suppliers" />
+    </LayerCard>
   ) : (
-    <div class="card-content">
-      <h2>Loading suppliers...</h2>
-    </div>
+    <LayerCard className="p-6">
+      <Text variant="secondary">No results</Text>
+    </LayerCard>
   )}
   <StatsTracker stats={stats} client:load />
 </Layout>

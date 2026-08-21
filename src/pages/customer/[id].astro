@@ -4,6 +4,7 @@ import StatsTracker from "../../components/StatsTracker";
 import AddTableField from "../../components/AddTableField";
 import { getSession } from "../../lib/db";
 import { prepareStatements, createSQLLog } from "../../lib/utils";
+import { LayerCard, LinkButton, Text } from "@cloudflare/kumo";
 
 const session = getSession();
 const { id } = Astro.params;
@@ -33,47 +34,35 @@ const stats = {
 
 <Layout>
   {customer ? (
-    <div class="card mb-6">
-      <header class="card-header">
-        <p class="card-header-title">
-          <span class="icon material-icons">ballot</span>
-          <span class="ml-2">Customer information</span>
-        </p>
-      </header>
-      <div class="card-content">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <AddTableField name="Company Name" value={customer.CompanyName} />
-            <AddTableField name="Contact Name" value={customer.ContactName} />
-            <AddTableField name="Contact Title" value={customer.ContactTitle} />
-            <AddTableField name="Address" value={customer.Address} />
-            <AddTableField name="City" value={customer.City} />
-          </div>
-          <div>
-            <AddTableField name="Postal Code" value={customer.PostalCode} />
-            <AddTableField name="Region" value={customer.Region} />
-            <AddTableField name="Country" value={customer.Country} />
-            <AddTableField name="Phone" value={customer.Phone} />
-            <AddTableField name="Fax" value={customer.Fax} />
-            {customer.HomePage ? (
-              <AddTableField name="HomePage" value={customer.HomePage} />
-            ) : null}
-          </div>
+    <LayerCard className="p-6">
+      <Text variant="heading3" as="h2">Customer information</Text>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+        <div>
+          <AddTableField name="Company Name" value={customer.CompanyName} />
+          <AddTableField name="Contact Name" value={customer.ContactName} />
+          <AddTableField name="Contact Title" value={customer.ContactTitle} />
+          <AddTableField name="Address" value={customer.Address} />
+          <AddTableField name="City" value={customer.City} />
         </div>
-
-        <hr class="text-gray-200" />
-
-        <div class="field grouped">
-          <div class="control">
-            <a href="/customers" class="button red">Go back</a>
-          </div>
+        <div>
+          <AddTableField name="Postal Code" value={customer.PostalCode} />
+          <AddTableField name="Region" value={customer.Region} />
+          <AddTableField name="Country" value={customer.Country} />
+          <AddTableField name="Phone" value={customer.Phone} />
+          <AddTableField name="Fax" value={customer.Fax} />
+          {customer.HomePage ? (
+            <AddTableField name="HomePage" value={customer.HomePage} />
+          ) : null}
         </div>
       </div>
-    </div>
+      <div class="mt-6">
+        <LinkButton href="/customers" variant="secondary">Go back</LinkButton>
+      </div>
+    </LayerCard>
   ) : (
-    <div class="card-content">
-      <h2>No such customer</h2>
-    </div>
+    <LayerCard className="p-6">
+      <Text variant="secondary">No such customer</Text>
+    </LayerCard>
   )}
   <StatsTracker stats={stats} client:load />
 </Layout>

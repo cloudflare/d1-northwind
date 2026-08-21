@@ -8,6 +8,9 @@ export default defineConfig({
   output: "server",
   adapter: cloudflare(),
   integrations: [react()],
+  image: {
+    domains: ["imagedelivery.net"],
+  },
   vite: {
     plugins: [tailwindcss()],
   },

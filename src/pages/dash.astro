@@ -1,11 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Dashboard from "../components/Dashboard";
+import { LayerCard } from "@cloudflare/kumo";
 
 const cf = (Astro.request as any).cf;
 const cfData = cf ? { colo: cf.colo as string, country: cf.country as string } : undefined;
 ---
 
 <Layout>
-  <Dashboard cf={cfData} client:load />
+  <LayerCard className="p-6">
+    <Dashboard cf={cfData} client:load />
+  </LayerCard>
 </Layout>

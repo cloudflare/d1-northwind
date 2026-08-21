@@ -1,49 +1,52 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import { LayerCard, Link, Text } from "@cloudflare/kumo";
 ---
 
 <Layout>
-  <div class="card-content">
-    <p class="text-2xl">Welcome to Northwind Traders</p>
-    <div class="pt-2">
-      <p class="text-gray-400 text-lg">Running on Cloudflare's D1</p>
-    </div>
-    <img
-      alt="Northwind Traders Database"
-      class="float-right object-scale-down w-96"
+  <LayerCard className="p-6">
+    <Text variant="heading2" as="h1">Welcome to Northwind Traders</Text>
+    <Text variant="secondary" size="lg">Running on Cloudflare's D1</Text>
+    <Image
       src="https://imagedelivery.net/4wj01aQOZZ0hemsvbxWAvA/763bcbcd-da6d-46ec-f5e1-70c1c1a33d00/public"
+      alt="Northwind Traders Database"
+      width={384}
+      height={216}
+      format="webp"
+      loading="eager"
+      class="float-right ml-4 w-96"
     />
-    <p class="text-base pt-4">
+    <p class="pt-4">
       This is a demo of the Northwind dataset, running on{" "}
-      <a class="link" href="https://workers.cloudflare.com/" target="_new"
-        >Cloudflare Workers</a
-      >, and D1 - Cloudflare's newest SQL database, running on SQLite.
+      <Link href="https://workers.cloudflare.com/" target="_new">
+        Cloudflare Workers
+      </Link>
+      , and D1 - Cloudflare's newest SQL database, running on SQLite.
     </p>
-    <p class="text-base pt-4">
+    <p class="pt-4">
       Read our{" "}
-      <a
-        class="link"
+      <Link
         href="https://blog.cloudflare.com/d1-turning-it-up-to-11/"
         target="_new"
       >
         most recent D1 announcement
-      </a>{" "}
+      </Link>{" "}
       to learn more about D1.
     </p>
-    <p class="text-base pt-4">
+    <p class="pt-4">
       This dataset was sourced from{" "}
-      <a
-        class="link"
+      <Link
         href="https://github.com/jpwhite3/northwind-SQLite3"
         target="_new"
       >
         northwind-SQLite3
-      </a>
+      </Link>
       .
     </p>
-    <p class="text-base pt-4">
+    <p class="pt-4">
       You can use the UI to explore Supplies, Orders, Customers, Employees and
       Products, or you can use search if you know what you're looking for.
     </p>
-  </div>
+  </LayerCard>
 </Layout>

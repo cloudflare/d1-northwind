@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import StatsTracker from "../components/StatsTracker";
+import SearchForm from "../components/SearchForm";
 import { getSession } from "../lib/db";
 import { prepareStatements, createSQLLog } from "../lib/utils";
+import { LayerCard, Link, Text } from "@cloudflare/kumo";
 
 const session = getSession();
 const q = Astro.url.searchParams.get("q");
@@ -39,96 +41,36 @@ if (q) {
 ---
 
 <Layout>
-  <div class="card">
-    <div class="card-content">
-      <form action="/search" method="get">
-        <div class="field">
-          <label class="label">Search Database</label>
-          <div class="field-body">
-            <div class="field">
-              <div class="control icons-left">
-                <input
-                  name="q"
-                  placeholder="Enter keyword..."
-                  value={q ?? ""}
-                  class="input w-1/2"
-                />
-                <span class="icon left material-icons ml-2 mt-2">search</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Tables</label>
-          <div class="field-body">
-            <div class="field grouped multiline">
-              <div class="control">
-                <label class="radio">
-                  <input
-                    type="radio"
-                    name="table"
-                    value="products"
-                    checked={table === "products"}
-                  />
-                  <span class="check"></span>
-                  <span class="control-label">Products</span>
-                </label>
-              </div>
-              <div class="control">
-                <label class="radio">
-                  <input
-                    type="radio"
-                    name="table"
-                    value="customers"
-                    checked={table === "customers"}
-                  />
-                  <span class="check"></span>
-                  <span class="control-label">Customers</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="control">
-            <button type="submit" class="button blue">Search</button>
-          </div>
-        </div>
-      </form>
-
-      <p class="text-black font-bold text-lg">Search results</p>
-      {results.length ? (
-        <>
-          {results.map((r: any, idx: number) =>
+  <LayerCard className="p-6">
+    <SearchForm initialQ={q ?? ""} initialTable={table} client:load />
+    <div class="mt-6">
+      <Text variant="heading3" as="h2">Search results</Text>
+      <div class="mt-4 space-y-3">
+        {results.length ? (
+          results.map((r: any, idx: number) =>
             table === "products" ? (
-              <>
-                <p class="text-base mt-2 link">
-                  <a href={`/product/${r.Id}`}>{r.ProductName}</a>
-                </p>
-                <p class="text-gray-400 text-sm">
+              <div>
+                <Link href={`/product/${r.Id}`}>{r.ProductName}</Link>
+                <Text variant="secondary" size="sm">
                   #{idx + 1}, Quantity Per Unit: {r.QuantityPerUnit}, Price:{" "}
                   {r.UnitPrice}, Stock: {r.UnitsInStock}
-                </p>
-              </>
+                </Text>
+              </div>
             ) : (
-              <>
-                <p class="text-base mt-2 link">
-                  <a href={`/customer/${r.Id}`}>{r.CompanyName}</a>
-                </p>
-                <p class="text-gray-400 text-sm">
+              <div>
+                <Link href={`/customer/${r.Id}`}>{r.CompanyName}</Link>
+                <Text variant="secondary" size="sm">
                   #{idx + 1}, Contact: {r.ContactName}, Title: {r.ContactTitle},
                   Phone: {r.Phone}
-                </p>
-              </>
+                </Text>
+              </div>
             ),
-          )}
-        </>
-      ) : (
-        <p class="mt-6">No results</p>
-      )}
+          )
+        ) : (
+          <Text variant="secondary">No results</Text>
+        )}
+      </div>
     </div>
-  </div>
+  </LayerCard>
   {stats && <StatsTracker stats={stats} client:load />}
 </Layout>

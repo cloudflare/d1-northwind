@@ -4,6 +4,7 @@ import StatsTracker from "../../components/StatsTracker";
 import AddTableField from "../../components/AddTableField";
 import { getSession } from "../../lib/db";
 import { prepareStatements, createSQLLog } from "../../lib/utils";
+import { LayerCard, Link, LinkButton, Table, Text } from "@cloudflare/kumo";
 
 const session = getSession();
 const { id } = Astro.params;
@@ -36,15 +37,10 @@ const stats = {
 
 <Layout>
   {order ? (
-    <div class="card mb-6">
-      <header class="card-header">
-        <p class="card-header-title">
-          <span class="icon material-icons">ballot</span>
-          <span class="ml-2">Order information</span>
-        </p>
-      </header>
-      <div class="card-content">
-        <div class="grid grid-cols-2 gap-4">
+    <div class="space-y-6">
+      <LayerCard className="p-6">
+        <Text variant="heading3" as="h2">Order information</Text>
+        <div class="mt-4 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
           <div>
             <AddTableField
               name="Customer Id"
@@ -84,56 +80,52 @@ const stats = {
             <AddTableField name="Ship Country" value={order.ShipCountry} />
           </div>
         </div>
-      </div>
-      <div class="card has-table">
-        <header class="card-header">
-          <p class="card-header-title">Products in Order</p>
-        </header>
-        <div class="card-content">
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Order Price</th>
-                <th>Total Price</th>
-                <th>Discount</th>
-              </tr>
-            </thead>
-            <tbody>
+      </LayerCard>
+
+      <LayerCard className="p-0">
+        <div class="border-b border-kumo-hairline px-4 py-3">
+          <Text variant="heading3" as="h2">Products in Order</Text>
+        </div>
+        <div class="overflow-x-auto">
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Product</Table.Head>
+                <Table.Head>Quantity</Table.Head>
+                <Table.Head>Order Price</Table.Head>
+                <Table.Head>Total Price</Table.Head>
+                <Table.Head>Discount</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
               {products.map((product: any) => (
-                <tr>
-                  <td data-label="Product">
-                    <a class="link" href={`/product/${product.Id}`}>
+                <Table.Row>
+                  <Table.Cell>
+                    <Link href={`/product/${product.Id}`}>
                       {product.ProductName}
-                    </a>
-                  </td>
-                  <td data-label="Quantity">{product.Quantity}</td>
-                  <td data-label="OrderPrice">{`$${parseFloat(
+                    </Link>
+                  </Table.Cell>
+                  <Table.Cell>{product.Quantity}</Table.Cell>
+                  <Table.Cell>{`$${parseFloat(
                     product.OrderUnitPrice,
-                  ).toFixed(2)}`}</td>
-                  <td data-label="TotalPrice">{`$${(
+                  ).toFixed(2)}`}</Table.Cell>
+                  <Table.Cell>{`$${(
                     Number(product.OrderUnitPrice) * Number(product.Quantity)
-                  ).toFixed(2)}`}</td>
-                  <td data-label="Discount">{`${product.Discount * 100}%`}</td>
-                </tr>
+                  ).toFixed(2)}`}</Table.Cell>
+                  <Table.Cell>{`${product.Discount * 100}%`}</Table.Cell>
+                </Table.Row>
               ))}
-            </tbody>
-          </table>
+            </Table.Body>
+          </Table>
         </div>
-      </div>
-      <div class="card-content">
-        <div class="field grouped">
-          <div class="control">
-            <a href="/orders" class="button red">Go back</a>
-          </div>
-        </div>
-      </div>
+      </LayerCard>
+
+      <LinkButton href="/orders" variant="secondary">Go back</LinkButton>
     </div>
   ) : (
-    <div class="card-content">
-      <h2>No such order</h2>
-    </div>
+    <LayerCard className="p-6">
+      <Text variant="secondary">No such order</Text>
+    </LayerCard>
   )}
   <StatsTracker stats={stats} client:load />
 </Layout>

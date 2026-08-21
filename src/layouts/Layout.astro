@@ -1,7 +1,6 @@
 ---
 import "../styles/app.css";
-import Nav from "../components/Nav";
-import Aside from "../components/Aside";
+import AppShell from "../components/AppShell";
 
 interface Props {
   title?: string;
@@ -16,6 +15,19 @@ const pathname = Astro.url.pathname;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script is:inline>
+      (() => {
+        const savedMode = localStorage.getItem("northwind-color-mode");
+        const mode =
+          savedMode === "light" || savedMode === "dark"
+            ? savedMode
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+
+        document.documentElement.dataset.mode = mode;
+      })();
+    </script>
     <title>{title}</title>
     <meta name="robots" content="noindex, nofollow" />
     <meta property="og:title" content="Northwind Traders, running on Cloudflare's D1" />
@@ -51,10 +63,6 @@ const pathname = Astro.url.pathname;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-    />
-    <link
-      rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     />
     <link
@@ -64,10 +72,8 @@ const pathname = Astro.url.pathname;
     />
   </head>
   <body>
-    <Nav client:load />
-    <Aside pathname={pathname} />
-    <section class="section main-section">
+    <AppShell pathname={pathname} client:load>
       <slot />
-    </section>
+    </AppShell>
   </body>
 </html>

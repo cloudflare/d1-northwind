@@ -4,6 +4,7 @@ import StatsTracker from "../../components/StatsTracker";
 import AddTableField from "../../components/AddTableField";
 import { getSession } from "../../lib/db";
 import { prepareStatements, createSQLLog } from "../../lib/utils";
+import { LayerCard, LinkButton, Text } from "@cloudflare/kumo";
 
 const session = getSession();
 const { id } = Astro.params;
@@ -33,47 +34,37 @@ const stats = {
 
 <Layout>
   {supplier ? (
-    <div class="card mb-6">
-      <header class="card-header">
-        <p class="card-header-title">
-          <span class="icon material-icons">ballot</span>
-          <span class="ml-2">Supplier information</span>
-        </p>
-      </header>
-      <div class="card-content">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <AddTableField name="Company Name" value={supplier.CompanyName} />
-            <AddTableField name="Contact Name" value={supplier.ContactName} />
-            <AddTableField name="Contact Title" value={supplier.ContactTitle} />
-            <AddTableField name="Address" value={supplier.Address} />
-            <AddTableField name="City" value={supplier.City} />
-          </div>
-          <div>
-            <AddTableField name="Region" value={supplier.Region} />
-            <AddTableField name="Postal Code" value={supplier.PostalCode} />
-            <AddTableField name="Country" value={supplier.Country} />
-            <AddTableField name="Phone" value={supplier.Phone} />
-            {supplier.Fax ? <AddTableField name="Fax" value={supplier.Fax} /> : null}
-            {supplier.HomePage ? (
-              <AddTableField name="Home Page" value={supplier.HomePage} />
-            ) : null}
-          </div>
+    <LayerCard className="p-6">
+      <Text variant="heading3" as="h2">Supplier information</Text>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+        <div>
+          <AddTableField name="Company Name" value={supplier.CompanyName} />
+          <AddTableField name="Contact Name" value={supplier.ContactName} />
+          <AddTableField name="Contact Title" value={supplier.ContactTitle} />
+          <AddTableField name="Address" value={supplier.Address} />
+          <AddTableField name="City" value={supplier.City} />
         </div>
-
-        <hr />
-
-        <div class="field grouped">
-          <div class="control">
-            <a href="/suppliers" class="button red">Go back</a>
-          </div>
+        <div>
+          <AddTableField name="Region" value={supplier.Region} />
+          <AddTableField name="Postal Code" value={supplier.PostalCode} />
+          <AddTableField name="Country" value={supplier.Country} />
+          <AddTableField name="Phone" value={supplier.Phone} />
+          {supplier.Fax ? (
+            <AddTableField name="Fax" value={supplier.Fax} />
+          ) : null}
+          {supplier.HomePage ? (
+            <AddTableField name="Home Page" value={supplier.HomePage} />
+          ) : null}
         </div>
       </div>
-    </div>
+      <div class="mt-6">
+        <LinkButton href="/suppliers" variant="secondary">Go back</LinkButton>
+      </div>
+    </LayerCard>
   ) : (
-    <div class="card-content">
-      <h2>No such supplier</h2>
-    </div>
+    <LayerCard className="p-6">
+      <Text variant="secondary">No such supplier</Text>
+    </LayerCard>
   )}
   <StatsTracker stats={stats} client:load />
 </Layout>

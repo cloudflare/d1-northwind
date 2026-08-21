@@ -4,6 +4,8 @@ import Paginate from "../components/Paginate";
 import StatsTracker from "../components/StatsTracker";
 import { getSession } from "../lib/db";
 import { prepareStatements, createSQLLog } from "../lib/utils";
+import { LayerCard, Link, LinkButton, Table, Text } from "@cloudflare/kumo";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
 const session = getSession();
 const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
@@ -32,61 +34,74 @@ const stats = {
   select: stmts.length,
   log: createSQLLog(sql, response, overallTimeMs),
 };
+
+const currentUrl = `${Astro.url.pathname}${Astro.url.search}`;
 ---
 
 <Layout>
   {employees.length ? (
-    <div class="card has-table">
-      <header class="card-header">
-        <p class="card-header-title">Employees</p>
-        <a class="card-header-icon" href={`${Astro.url.pathname}${Astro.url.search}`}>
-          <span class="material-icons">redo</span>
-        </a>
-      </header>
-      <div class="card-content">
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Title</th>
-              <th>City</th>
-              <th>Phone</th>
-              <th>Country</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
+    <LayerCard className="p-0">
+      <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
+        <Text variant="heading3" as="h2">Employees</Text>
+        <LinkButton
+          href={currentUrl}
+          variant="ghost"
+          size="sm"
+          shape="square"
+          aria-label="Refresh"
+        >
+          <ArrowClockwiseIcon size={16} />
+        </LinkButton>
+      </div>
+      <div class="overflow-x-auto">
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head></Table.Head>
+              <Table.Head>Name</Table.Head>
+              <Table.Head>Title</Table.Head>
+              <Table.Head>City</Table.Head>
+              <Table.Head>Phone</Table.Head>
+              <Table.Head>Country</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {employees.map((employee: any) => {
               const avatar = `https://api.dicebear.com/9.x/initials/svg?seed=${employee.FirstName[0]}-${employee.LastName[0]}`;
               return (
-                <tr>
-                  <td class="image-cell">
-                    <div class="image">
-                      <img alt="employee avatar" src={avatar} class="rounded-full" />
-                    </div>
-                  </td>
-                  <td data-label="Name">
-                    <a class="link" href={`/employee/${employee.Id}`}>
+                <Table.Row>
+                  <Table.Cell className="w-12">
+                    <img
+                      src={avatar}
+                      alt="employee avatar"
+                      width={32}
+                      height={32}
+                      loading="lazy"
+                      decoding="async"
+                      class="rounded-full"
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Link href={`/employee/${employee.Id}`}>
                       {`${employee.FirstName} ${employee.LastName}`}
-                    </a>
-                  </td>
-                  <td data-label="Title">{employee.Title}</td>
-                  <td data-label="City">{employee.City}</td>
-                  <td data-label="Phone">{employee.HomePhone}</td>
-                  <td data-label="Country">{employee.Country}</td>
-                </tr>
+                    </Link>
+                  </Table.Cell>
+                  <Table.Cell>{employee.Title}</Table.Cell>
+                  <Table.Cell>{employee.City}</Table.Cell>
+                  <Table.Cell>{employee.HomePhone}</Table.Cell>
+                  <Table.Cell>{employee.Country}</Table.Cell>
+                </Table.Row>
               );
             })}
-          </tbody>
-        </table>
-        <Paginate pages={pages} page={page} base="/employees" />
+          </Table.Body>
+        </Table>
       </div>
-    </div>
+      <Paginate page={page} pages={pages} base="/employees" />
+    </LayerCard>
   ) : (
-    <div class="card-content">
-      <h2>No results</h2>
-    </div>
+    <LayerCard className="p-6">
+      <Text variant="secondary">No results</Text>
+    </LayerCard>
   )}
   <StatsTracker stats={stats} client:load />
 </Layout>

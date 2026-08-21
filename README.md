@@ -8,9 +8,9 @@ This repo has the code for https://northwind.d1sql.com/
 - [D1](https://blog.cloudflare.com/introducing-d1/) for database
 - [Wrangler](https://github.com/cloudflare/wrangler2) for building
 - [Typescript](https://www.typescriptlang.org/) for better Javascript
-- [Tailwind CSS](https://tailwindcss.com/) for the UI
 - [Astro](https://astro.build/) for the framework
 - [React](https://reactjs.org/) for interactive components
+- [Kumo](https://kumo-ui.com/) for the UI components
 
 ## Get the demo running
 

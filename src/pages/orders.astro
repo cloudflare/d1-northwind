@@ -4,6 +4,8 @@ import Paginate from "../components/Paginate";
 import StatsTracker from "../components/StatsTracker";
 import { getSession } from "../lib/db";
 import { prepareStatements, createSQLLog } from "../lib/utils";
+import { LayerCard, Link, LinkButton, Table, Text } from "@cloudflare/kumo";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
 const session = getSession();
 const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
@@ -44,58 +46,66 @@ try {
 }
 
 const pages = Math.ceil(total / itemsPerPage);
+const currentUrl = `${Astro.url.pathname}${Astro.url.search}`;
 ---
 
 <Layout>
   {orders.length ? (
-    <div class="card has-table">
-      <header class="card-header">
-        <p class="card-header-title">Orders</p>
-        <a class="card-header-icon" href={`${Astro.url.pathname}${Astro.url.search}`}>
-          <span class="material-icons">redo</span>
-        </a>
-      </header>
-      <div class="card-content">
-        <table>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Total Price</th>
-              <th>Products</th>
-              <th>Quantity</th>
-              <th>Shipped</th>
-              <th>Ship Name</th>
-              <th>City</th>
-              <th>Country</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order: any) => (
-              <tr>
-                <td data-label="Id">
-                  <a class="link" href={`/order/${order.Id}`}>
-                    {order.Id}
-                  </a>
-                </td>
-                <td data-label="Price">{`$${parseFloat(order.TotalProductsPrice).toFixed(2)}`}</td>
-                <td data-label="Products">{order.TotalProducts}</td>
-                <td data-label="Quantity">{order.TotalProductsItems}</td>
-                <td data-label="Date">{order.OrderDate}</td>
-                <td data-label="Name">{order.ShipName}</td>
-                <td data-label="City">{order.ShipCity}</td>
-                <td data-label="Country">{order.ShipCountry}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <Paginate pages={pages} page={page} base="/orders" />
+    <LayerCard className="p-0">
+      <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
+        <Text variant="heading3" as="h2">Orders</Text>
+        <LinkButton
+          href={currentUrl}
+          variant="ghost"
+          size="sm"
+          shape="square"
+          aria-label="Refresh"
+        >
+          <ArrowClockwiseIcon size={16} />
+        </LinkButton>
       </div>
-    </div>
+      <div class="overflow-x-auto">
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.Head>Id</Table.Head>
+              <Table.Head>Total Price</Table.Head>
+              <Table.Head>Products</Table.Head>
+              <Table.Head>Quantity</Table.Head>
+              <Table.Head>Shipped</Table.Head>
+              <Table.Head>Ship Name</Table.Head>
+              <Table.Head>City</Table.Head>
+              <Table.Head>Country</Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {orders.map((order: any) => (
+              <Table.Row>
+                <Table.Cell>
+                  <Link href={`/order/${order.Id}`}>{order.Id}</Link>
+                </Table.Cell>
+                <Table.Cell>{`$${parseFloat(order.TotalProductsPrice).toFixed(2)}`}</Table.Cell>
+                <Table.Cell>{order.TotalProducts}</Table.Cell>
+                <Table.Cell>{order.TotalProductsItems}</Table.Cell>
+                <Table.Cell>{order.OrderDate}</Table.Cell>
+                <Table.Cell>{order.ShipName}</Table.Cell>
+                <Table.Cell>{order.ShipCity}</Table.Cell>
+                <Table.Cell>{order.ShipCountry}</Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </div>
+      <Paginate page={page} pages={pages} base="/orders" />
+    </LayerCard>
   ) : (
-    <div class="card-content">
-      {error ? <h2>{msg}</h2> : <h2>Loading orders...</h2>}
-    </div>
+    <LayerCard className="p-6">
+      {error ? (
+        <Text variant="error">{msg}</Text>
+      ) : (
+        <Text variant="secondary">Loading orders...</Text>
+      )}
+    </LayerCard>
   )}
   {stats && <StatsTracker stats={stats} client:load />}
 </Layout>
