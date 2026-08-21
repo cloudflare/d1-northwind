@@ -4,7 +4,6 @@ import {
   GaugeIcon,
   HouseIcon,
   IdentificationBadgeIcon,
-  MagnifyingGlassIcon,
   PackageIcon,
   ShoppingCartIcon,
   TruckIcon,
@@ -87,13 +86,6 @@ export function AppShell({ pathname, children }: AppShellProps) {
                 active={isActive("/customers")}
               >
                 Customers
-              </Sidebar.MenuButton>
-              <Sidebar.MenuButton
-                icon={MagnifyingGlassIcon}
-                href="/search"
-                active={isActive("/search")}
-              >
-                Search
               </Sidebar.MenuButton>
             </Sidebar.Menu>
           </Sidebar.Group>

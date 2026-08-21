@@ -10,6 +10,7 @@
     "deploy": "npm run build && wrangler deploy",
     "dev": "astro dev",
     "preview": "astro build && wrangler dev",
+    "test": "vitest run",
     "typecheck": "npm run cf-typegen && astro check && tsc --noEmit",
     "local:init": "wrangler d1 execute northwind --file=./db/schema.sql --local",
     "local:load": "wrangler d1 execute northwind --file=./db/data.sql --local",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19.0.1",
@@ -26,6 +28,7 @@
     "tailwindcss": "^4.1.3",
     "typescript": "^5.7.2",
     "vite": "^8.2.1",
+    "vitest": "^4.1.11",
     "wrangler": "^4.124.0"
   },
   "dependencies": {

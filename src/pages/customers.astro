@@ -3,105 +3,185 @@ import Layout from "../layouts/Layout.astro";
 import Paginate from "../components/Paginate";
 import StatsTracker from "../components/StatsTracker";
 import { getSession } from "../lib/db";
-import { prepareStatements, createSQLLog } from "../lib/utils";
-import { LayerCard, Link, LinkButton, Table, Text } from "@cloudflare/kumo";
+import { search } from "../lib/search";
+import {
+  prepareStatements,
+  createSQLLog,
+  type StatsEvent,
+} from "../lib/utils";
+import {
+  Button,
+  Input,
+  LayerCard,
+  Link,
+  LinkButton,
+  Table,
+  Text,
+} from "@cloudflare/kumo";
 import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
-const session = getSession();
+interface CustomerListItem {
+  id: string;
+  companyName: string | null;
+  contactName: string | null;
+  contactTitle: string | null;
+  city: string | null;
+  country: string | null;
+}
+
+interface CustomerListRow {
+  Id: string;
+  CompanyName: string | null;
+  ContactName: string | null;
+  ContactTitle: string | null;
+  City: string | null;
+  Country: string | null;
+}
+
 const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
 const itemsPerPage = 20;
+const result = await search("customer", Astro.url.searchParams.get("q"));
 
-const [stmts, sql] = prepareStatements(
-  session,
-  "Customer",
-  [
-    "SELECT Id, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax FROM Customer LIMIT ?1 OFFSET ?2",
-  ],
-  [[itemsPerPage, (page - 1) * itemsPerPage]],
-);
+if (result.status === "invalid") Astro.response.status = 400;
 
-const startTime = Date.now();
-const response = await session.batch(stmts);
-const overallTimeMs = Date.now() - startTime;
+let customers: CustomerListItem[] = [];
+let pages = 0;
+let stats: StatsEvent | undefined;
 
-const total = (response[0].results?.[0] as any)?.total ?? 0;
-const customers = (response.slice(1)[0].results ?? []) as any[];
-const pages = Math.ceil(total / itemsPerPage);
+if (result.status === "idle") {
+  const session = getSession();
+  const [stmts, sql] = prepareStatements(
+    session,
+    "Customer",
+    [
+      "SELECT Id, CompanyName, ContactName, ContactTitle, City, Country FROM Customer ORDER BY CompanyName, Id LIMIT ?1 OFFSET ?2",
+    ],
+    [[itemsPerPage, (page - 1) * itemsPerPage]],
+  );
 
-const stats = {
-  queries: stmts.length,
-  results: customers.length + 1,
-  select: stmts.length,
-  log: createSQLLog(sql, response, overallTimeMs),
-};
+  const startTime = Date.now();
+  const response = await session.batch(stmts);
+  const overallTimeMs = Date.now() - startTime;
+  const total = (response[0].results?.[0] as { total?: number })?.total ?? 0;
+  const rows = (response[1].results ?? []) as unknown as CustomerListRow[];
 
+  customers = rows.map((row) => ({
+    id: row.Id,
+    companyName: row.CompanyName,
+    contactName: row.ContactName,
+    contactTitle: row.ContactTitle,
+    city: row.City,
+    country: row.Country,
+  }));
+  pages = Math.ceil(total / itemsPerPage);
+  stats = {
+    queries: stmts.length,
+    results: customers.length + 1,
+    select: stmts.length,
+    log: createSQLLog(sql, response, overallTimeMs),
+  };
+} else if (result.status === "results" && result.target === "customer") {
+  customers = result.items;
+  stats = result.activity;
+}
+
+const query = result.query;
+const isSearching = result.status !== "idle";
 const currentUrl = `${Astro.url.pathname}${Astro.url.search}`;
 ---
 
-<Layout>
-  {customers.length ? (
-    <LayerCard className="p-0">
-      <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
-        <Text variant="heading3" as="h2">Customers</Text>
-        <LinkButton
-          href={currentUrl}
-          variant="ghost"
-          size="sm"
-          shape="square"
-          aria-label="Refresh"
-        >
-          <ArrowClockwiseIcon size={16} />
-        </LinkButton>
+<Layout title="Customers — Northwind Traders">
+  <LayerCard className="p-0">
+    <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
+      <Text variant="heading3" as="h2">Customers</Text>
+      <LinkButton
+        href={currentUrl}
+        variant="ghost"
+        size="sm"
+        shape="square"
+        aria-label="Refresh"
+      >
+        <ArrowClockwiseIcon size={16} />
+      </LinkButton>
+    </div>
+
+    <form method="get" action="/customers" class="flex flex-col gap-2 border-b border-kumo-hairline px-4 py-3 sm:flex-row sm:items-end">
+      <div class="min-w-0 flex-1">
+        <Input
+          label="Search customers"
+          name="q"
+          maxLength={200}
+          placeholder="Search by company, contact, title, or address..."
+          defaultValue={query}
+        />
       </div>
-      <div class="overflow-x-auto">
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head></Table.Head>
-              <Table.Head>Company</Table.Head>
-              <Table.Head>Contact</Table.Head>
-              <Table.Head>Title</Table.Head>
-              <Table.Head>City</Table.Head>
-              <Table.Head>Country</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {customers.map((customer: any) => {
-              const avatar = `https://api.dicebear.com/9.x/initials/svg?seed=${customer.ContactName.split(" ")[0]}-${customer.ContactName.split(" ").slice(-1)[0]}`;
-              return (
-                <Table.Row>
-                  <Table.Cell className="w-12">
-                    <img
-                      src={avatar}
-                      alt="Customer avatar"
-                      width={32}
-                      height={32}
-                      loading="lazy"
-                      decoding="async"
-                      class="rounded-full"
-                    />
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Link href={`/customer/${customer.Id}`}>
-                      {customer.CompanyName}
-                    </Link>
-                  </Table.Cell>
-                  <Table.Cell>{customer.ContactName}</Table.Cell>
-                  <Table.Cell>{customer.ContactTitle}</Table.Cell>
-                  <Table.Cell>{customer.City}</Table.Cell>
-                  <Table.Cell>{customer.Country}</Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table>
-      </div>
-      <Paginate page={page} pages={pages} base="/customers" />
-    </LayerCard>
-  ) : (
-    <LayerCard className="p-6">
-      <Text variant="secondary">No results</Text>
-    </LayerCard>
-  )}
-  <StatsTracker stats={stats} client:load />
+      <Button type="submit" variant="primary">Search</Button>
+      {isSearching ? <LinkButton href="/customers">Clear</LinkButton> : null}
+    </form>
+
+    {result.status === "invalid" ? (
+      <div class="px-4 py-6"><Text variant="error">{result.message}</Text></div>
+    ) : customers.length ? (
+      <>
+        <div class="overflow-x-auto">
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head></Table.Head>
+                <Table.Head>Company</Table.Head>
+                <Table.Head>Contact</Table.Head>
+                <Table.Head>Title</Table.Head>
+                <Table.Head>City</Table.Head>
+                <Table.Head>Country</Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {customers.map((customer) => {
+                const avatarSeed = encodeURIComponent(
+                  customer.contactName ?? customer.companyName ?? customer.id,
+                );
+                const avatar = `https://api.dicebear.com/9.x/initials/svg?seed=${avatarSeed}`;
+                return (
+                  <Table.Row>
+                    <Table.Cell className="w-12">
+                      <img
+                        src={avatar}
+                        alt="Customer avatar"
+                        width={32}
+                        height={32}
+                        loading="lazy"
+                        decoding="async"
+                        class="rounded-full"
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Link href={`/customer/${customer.id}`}>
+                        {customer.companyName}
+                      </Link>
+                    </Table.Cell>
+                    <Table.Cell>{customer.contactName}</Table.Cell>
+                    <Table.Cell>{customer.contactTitle}</Table.Cell>
+                    <Table.Cell>{customer.city}</Table.Cell>
+                    <Table.Cell>{customer.country}</Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+        </div>
+        {result.status === "idle" ? (
+          <Paginate page={page} pages={pages} base="/customers" />
+        ) : result.status === "results" && result.truncated ? (
+          <div class="px-4 py-3">
+            <Text variant="secondary" size="sm">
+              Showing the first 20 matches. Refine your search to see others.
+            </Text>
+          </div>
+        ) : null}
+      </>
+    ) : (
+      <div class="px-4 py-6"><Text variant="secondary">No results</Text></div>
+    )}
+  </LayerCard>
+  {stats ? <StatsTracker stats={stats} client:load /> : null}
 </Layout>

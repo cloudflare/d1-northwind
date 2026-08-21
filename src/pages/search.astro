@@ -1,76 +1,35 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import StatsTracker from "../components/StatsTracker";
-import SearchForm from "../components/SearchForm";
-import { getSession } from "../lib/db";
-import { prepareStatements, createSQLLog } from "../lib/utils";
 import { LayerCard, Link, Text } from "@cloudflare/kumo";
 
-const session = getSession();
-const q = Astro.url.searchParams.get("q");
-const table = Astro.url.searchParams.get("table") ?? "products";
+const query = (Astro.url.searchParams.get("q") ?? "").trim();
+const requestedTarget =
+  Astro.url.searchParams.get("target") ??
+  Astro.url.searchParams.get("table") ??
+  "product";
+const targetPaths: Record<string, string> = {
+  product: "/products",
+  products: "/products",
+  customer: "/customers",
+  customers: "/customers",
+};
+const path = targetPaths[requestedTarget];
 
-let results: any[] = [];
-let stats: any;
-
-if (q) {
-  const [stmts, sql] = prepareStatements(
-    session,
-    false,
-    [
-      table === "products"
-        ? "SELECT Id, ProductName, SupplierId, CategoryId, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM Product WHERE ProductName LIKE ?2 LIMIT ?1"
-        : "SELECT Id, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax FROM Customer WHERE CompanyName LIKE ?2 OR ContactName LIKE ?2 OR ContactTitle LIKE ?2 OR Address LIKE ?2 LIMIT ?1",
-    ],
-    [[20, `%${q}%`]],
-  );
-
-  const startTime = Date.now();
-  const search = await stmts[0].all();
-  const overallTimeMs = Date.now() - startTime;
-
-  results = (search.results ?? []) as any[];
-
-  stats = {
-    queries: 1,
-    results: results.length,
-    select_where: 1,
-    log: createSQLLog(sql, [search], overallTimeMs),
-  };
+if (path) {
+  const destination = new URL(path, Astro.url);
+  if (query) destination.searchParams.set("q", query);
+  return Astro.redirect(`${destination.pathname}${destination.search}`, 308);
 }
+
+Astro.response.status = 400;
 ---
 
-<Layout>
+<Layout title="Search — Northwind Traders">
   <LayerCard className="p-6">
-    <SearchForm initialQ={q ?? ""} initialTable={table} client:load />
-    <div class="mt-6">
-      <Text variant="heading3" as="h2">Search results</Text>
-      <div class="mt-4 space-y-3">
-        {results.length ? (
-          results.map((r: any, idx: number) =>
-            table === "products" ? (
-              <div>
-                <Link href={`/product/${r.Id}`}>{r.ProductName}</Link>
-                <Text variant="secondary" size="sm">
-                  #{idx + 1}, Quantity Per Unit: {r.QuantityPerUnit}, Price:{" "}
-                  {r.UnitPrice}, Stock: {r.UnitsInStock}
-                </Text>
-              </div>
-            ) : (
-              <div>
-                <Link href={`/customer/${r.Id}`}>{r.CompanyName}</Link>
-                <Text variant="secondary" size="sm">
-                  #{idx + 1}, Contact: {r.ContactName}, Title: {r.ContactTitle},
-                  Phone: {r.Phone}
-                </Text>
-              </div>
-            ),
-          )
-        ) : (
-          <Text variant="secondary">No results</Text>
-        )}
-      </div>
+    <Text variant="heading3" as="h2">Choose a list to search</Text>
+    <div class="mt-4 flex gap-4">
+      <Link href="/products">Products</Link>
+      <Link href="/customers">Customers</Link>
     </div>
   </LayerCard>
-  {stats && <StatsTracker stats={stats} client:load />}
 </Layout>

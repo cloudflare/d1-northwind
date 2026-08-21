@@ -3,90 +3,165 @@ import Layout from "../layouts/Layout.astro";
 import Paginate from "../components/Paginate";
 import StatsTracker from "../components/StatsTracker";
 import { getSession } from "../lib/db";
-import { prepareStatements, createSQLLog } from "../lib/utils";
-import { LayerCard, Link, LinkButton, Table, Text } from "@cloudflare/kumo";
+import { search } from "../lib/search";
+import {
+  prepareStatements,
+  createSQLLog,
+  type StatsEvent,
+} from "../lib/utils";
+import {
+  Button,
+  Input,
+  LayerCard,
+  Link,
+  LinkButton,
+  Table,
+  Text,
+} from "@cloudflare/kumo";
 import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
-const session = getSession();
+interface ProductListItem {
+  id: number;
+  name: string;
+  quantityPerUnit: string | null;
+  unitPrice: number;
+  unitsInStock: number;
+  unitsOnOrder: number;
+}
+
+interface ProductListRow {
+  Id: number;
+  ProductName: string;
+  QuantityPerUnit: string | null;
+  UnitPrice: number;
+  UnitsInStock: number;
+  UnitsOnOrder: number;
+}
+
 const page = parseInt(Astro.url.searchParams.get("page") ?? "1") || 1;
 const itemsPerPage = 20;
+const result = await search("product", Astro.url.searchParams.get("q"));
 
-const [stmts, sql] = prepareStatements(
-  session,
-  "Product",
-  [
-    "SELECT Id, ProductName, SupplierId, CategoryId, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder, ReorderLevel, Discontinued FROM Product LIMIT ?1 OFFSET ?2",
-  ],
-  [[itemsPerPage, (page - 1) * itemsPerPage]],
-);
+if (result.status === "invalid") Astro.response.status = 400;
 
-const startTime = Date.now();
-const response = await session.batch(stmts);
-const overallTimeMs = Date.now() - startTime;
+let products: ProductListItem[] = [];
+let pages = 0;
+let stats: StatsEvent | undefined;
 
-const total = (response[0].results?.[0] as any)?.total ?? 0;
-const products = (response.slice(1)[0].results ?? []) as any[];
-const pages = Math.ceil(total / itemsPerPage);
+if (result.status === "idle") {
+  const session = getSession();
+  const [stmts, sql] = prepareStatements(
+    session,
+    "Product",
+    [
+      "SELECT Id, ProductName, QuantityPerUnit, UnitPrice, UnitsInStock, UnitsOnOrder FROM Product ORDER BY ProductName, Id LIMIT ?1 OFFSET ?2",
+    ],
+    [[itemsPerPage, (page - 1) * itemsPerPage]],
+  );
 
-const stats = {
-  queries: stmts.length,
-  results: products.length + 1,
-  select: stmts.length,
-  log: createSQLLog(sql, response, overallTimeMs),
-};
+  const startTime = Date.now();
+  const response = await session.batch(stmts);
+  const overallTimeMs = Date.now() - startTime;
+  const total = (response[0].results?.[0] as { total?: number })?.total ?? 0;
+  const rows = (response[1].results ?? []) as unknown as ProductListRow[];
 
+  products = rows.map((row) => ({
+    id: row.Id,
+    name: row.ProductName,
+    quantityPerUnit: row.QuantityPerUnit,
+    unitPrice: row.UnitPrice,
+    unitsInStock: row.UnitsInStock,
+    unitsOnOrder: row.UnitsOnOrder,
+  }));
+  pages = Math.ceil(total / itemsPerPage);
+  stats = {
+    queries: stmts.length,
+    results: products.length + 1,
+    select: stmts.length,
+    log: createSQLLog(sql, response, overallTimeMs),
+  };
+} else if (result.status === "results" && result.target === "product") {
+  products = result.items;
+  stats = result.activity;
+}
+
+const query = result.query;
+const isSearching = result.status !== "idle";
 const currentUrl = `${Astro.url.pathname}${Astro.url.search}`;
 ---
 
-<Layout>
-  {products.length ? (
-    <LayerCard className="p-0">
-      <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
-        <Text variant="heading3" as="h2">Products</Text>
-        <LinkButton
-          href={currentUrl}
-          variant="ghost"
-          size="sm"
-          shape="square"
-          aria-label="Refresh"
-        >
-          <ArrowClockwiseIcon size={16} />
-        </LinkButton>
+<Layout title="Products — Northwind Traders">
+  <LayerCard className="p-0">
+    <div class="flex items-center justify-between border-b border-kumo-hairline px-4 py-3">
+      <Text variant="heading3" as="h2">Products</Text>
+      <LinkButton
+        href={currentUrl}
+        variant="ghost"
+        size="sm"
+        shape="square"
+        aria-label="Refresh"
+      >
+        <ArrowClockwiseIcon size={16} />
+      </LinkButton>
+    </div>
+
+    <form method="get" action="/products" class="flex flex-col gap-2 border-b border-kumo-hairline px-4 py-3 sm:flex-row sm:items-end">
+      <div class="min-w-0 flex-1">
+        <Input
+          label="Search products"
+          name="q"
+          maxLength={200}
+          placeholder="Search by product name..."
+          defaultValue={query}
+        />
       </div>
-      <div class="overflow-x-auto">
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.Head>Name</Table.Head>
-              <Table.Head>Qt per unit</Table.Head>
-              <Table.Head>Price</Table.Head>
-              <Table.Head>Stock</Table.Head>
-              <Table.Head>Orders</Table.Head>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {products.map((product: any) => (
+      <Button type="submit" variant="primary">Search</Button>
+      {isSearching ? <LinkButton href="/products">Clear</LinkButton> : null}
+    </form>
+
+    {result.status === "invalid" ? (
+      <div class="px-4 py-6"><Text variant="error">{result.message}</Text></div>
+    ) : products.length ? (
+      <>
+        <div class="overflow-x-auto">
+          <Table>
+            <Table.Header>
               <Table.Row>
-                <Table.Cell>
-                  <Link href={`/product/${product.Id}`}>
-                    {product.ProductName}
-                  </Link>
-                </Table.Cell>
-                <Table.Cell>{product.QuantityPerUnit}</Table.Cell>
-                <Table.Cell>${product.UnitPrice}</Table.Cell>
-                <Table.Cell>{product.UnitsInStock}</Table.Cell>
-                <Table.Cell>{product.UnitsOnOrder}</Table.Cell>
+                <Table.Head>Name</Table.Head>
+                <Table.Head>Qt per unit</Table.Head>
+                <Table.Head>Price</Table.Head>
+                <Table.Head>Stock</Table.Head>
+                <Table.Head>Orders</Table.Head>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </div>
-      <Paginate page={page} pages={pages} base="/products" />
-    </LayerCard>
-  ) : (
-    <LayerCard className="p-6">
-      <Text variant="secondary">No results</Text>
-    </LayerCard>
-  )}
-  <StatsTracker stats={stats} client:load />
+            </Table.Header>
+            <Table.Body>
+              {products.map((product) => (
+                <Table.Row>
+                  <Table.Cell>
+                    <Link href={`/product/${product.id}`}>{product.name}</Link>
+                  </Table.Cell>
+                  <Table.Cell>{product.quantityPerUnit}</Table.Cell>
+                  <Table.Cell>${product.unitPrice}</Table.Cell>
+                  <Table.Cell>{product.unitsInStock}</Table.Cell>
+                  <Table.Cell>{product.unitsOnOrder}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </div>
+        {result.status === "idle" ? (
+          <Paginate page={page} pages={pages} base="/products" />
+        ) : result.status === "results" && result.truncated ? (
+          <div class="px-4 py-3">
+            <Text variant="secondary" size="sm">
+              Showing the first 20 matches. Refine your search to see others.
+            </Text>
+          </div>
+        ) : null}
+      </>
+    ) : (
+      <div class="px-4 py-6"><Text variant="secondary">No results</Text></div>
+    )}
+  </LayerCard>
+  {stats ? <StatsTracker stats={stats} client:load /> : null}
 </Layout>
